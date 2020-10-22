@@ -16,4 +16,14 @@ typedef enum Token {
     ID, INT
 } Token;
 
+typedef struct tokenStream {
+    Token token;
+    char lexeme[21];
+    int line_num;
+    struct tokenStream * next;
+} tokenStream;
+
+char * loadfile (char * filename, long * sizeptr);
+void tokeniseSourcecode(char * source_file, tokenStream *s);
+
 #endif
