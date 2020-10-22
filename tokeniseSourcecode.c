@@ -144,8 +144,25 @@ void read_keyword(char *buf, tokenStream *s, int *read) {
     }
 }
 
+int is_alphanum(char * source) {
+    if(*source >= '0' && *source <= '9') return 1;
+    if(*source >= 'a' && *source <= 'z') return 1;
+    if(*source >= 'A' && *source <= 'Z') return 1;
+    if(*source == '_') return 1;
+    return 0;
+}
+
 void read_id(char *buf, tokenStream *s, int *read) {
     if(*read) return;
+
+    int len = strlen(buf);
+    int success = 1;
+    for(int i = 0; i < len; i++) if(!is_alphanum(buf + i)) success = 0;
+    if(buf[0] >= '0' && buf[0] <= '9') success = 0;
+
+    if(!success) return;
+    *read = len;
+    s->token = ID;
 }
 
 void tokeniseSourcecode(char * source_file, tokenStream *s) {
