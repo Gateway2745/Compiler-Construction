@@ -7,13 +7,11 @@
 
 typedef enum Token {
     BO, BC, SQO, SQC, CURLO, CURLC, CLN, SEMCOL, ROP, ASSGN,
-
     KEY_PROG, KEY_DECL, KEY_LIST, KEY_OF, KEY_VARS, KEY_ARR, R1,
     KEY_SIZE, KEY_VALS, KEY_JAG, KEY_INT, KEY_REAL, KEY_BOOL,
-
     OP_PLUS, OP_MINUS, OP_STAR, OP_SLASH, OP_AND, OP_OR,
-
-    ID, INT
+    ID, INT,
+    END
 } Token;
 
 typedef struct tokenStream {

@@ -2,6 +2,10 @@
 
 char * loadfile (char * filename, long * sizeptr) {
 	FILE * file = fopen(filename, "r");
+    if(!file) {
+        printf("File %s not found\n", filename);
+        exit(0);
+    }
 	
 	fseek(file, 0L, SEEK_END);
 	*sizeptr = ftell(file);
