@@ -1,7 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include "readGrammar.h"
+#include "parser.h"
 
 void printList(Term* head)
 {

@@ -5,6 +5,16 @@
 #include "stdio.h"
 #include "string.h"
 
+typedef struct Term {
+    char name[20];
+    struct Term* next;
+} Term;
+
+typedef struct Grammar {
+    char name[20];
+    struct Term* next;
+} Grammar;
+
 typedef enum Token {
     BO, BC, SQO, SQC, CURLO, CURLC, CLN, SEMCOL, ROP, ASSGN,
     KEY_PROG, KEY_DECL, KEY_LIST, KEY_OF, KEY_VARS, KEY_ARR, R1,
