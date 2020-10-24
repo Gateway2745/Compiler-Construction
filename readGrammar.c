@@ -4,8 +4,8 @@ void printList(Term* head)
 {
     while(head)
     {
-        if(head->is_term==0) printf("%d\n", head->type.nt);
-        else printf("%d\n", head->type.tok);
+        if(head->is_term==0) printf("%d -> ", head->type.nt);
+        else printf("%d -> ", head->type.tok);
         
         head = head->next;
     }
@@ -126,25 +126,53 @@ void readGrammar(char *filename, Grammar* g)
         g[linecount].nt = getType(token, &success).nt;
         if(success != 0) printf("Error\nSup Rohit! You're the one most likely to see this\n");
         g[linecount].next=NULL;
-        token = strtok(NULL, " ");
+        //token = strtok(NULL, " ");
         //printf("\n");
-        while(token != NULL) 
+        while((token = strtok(NULL, " "))!= NULL) 
         {
-            //printf("%s,", token);
             token[strcspn(token, "\n")] = 0;
-            if(!strlen(token)) {token = strtok(NULL, " ");continue;} // strings with length 0 found
+            if(!strlen(token)) continue; // strings with length 0 found
+            //printf("%s,", token);
             token = removeFirstAndLast(token);
             g[linecount].next = addNode(g[linecount].next, token);
-            token = strtok(NULL, " ");
+            //token = strtok(NULL, " ");
         }
         linecount++;
     }
+    for(int i=0;i<linecount;i++) g[i].num_rules=linecount; // store total number of rules
 
 }
+
+Term** get_rules(Grammar* g, TermType t, int* num_rules) // returns pointer to an array of linkedlists
+{
+    Term** req = (Term**) malloc(10 * sizeof(Term*)); // assuming one nonterminal has max 10 rules
+    int j=0;
+    for(int i=0;i<g[0].num_rules;i++)
+    {
+        if(g[i].nt==t.nt) req[j++]=g[i].next;
+    }
+    *num_rules = j;
+    if(j==0)
+    {
+        printf("NO RULES FOUND FOR GIVEN NON-TERMINAL!\nIS THIS A TERMINAL??\nABORT NOW!!");
+    }
+    return req;
+}	
+
 
 int main()
 {
     Grammar g[100];
     readGrammar("grammar.txt",g);
-    printList(g[15].next);
+    //printList(g[15].next);
+    TermType t = {MULTIVAR_DEC};
+    int num_rules;
+    Term** rules = get_rules(g,t,&num_rules);
+    printf("num rules = %d\n", num_rules);
+    int i=0;
+    while(i<num_rules)
+    {
+        printList(rules[i++]);
+        printf("\n");
+    }
 }

@@ -41,6 +41,7 @@ typedef struct Term {
 typedef struct Grammar {
     NonTerm nt;
     Term* next;
+    int num_rules; // each grammar struct will store total number of rules in the grammar
 } Grammar;
 
 typedef struct parseTree {
