@@ -15,6 +15,13 @@ typedef struct Grammar {
     struct Term* next;
 } Grammar;
 
+typedef enum NonTerm NonTerm;
+
+typedef union TermType {
+    Token tok;
+    NonTerm nt;
+} TermType;
+
 typedef struct parseTree {
     TermType grammar_term;
     int num_children;
