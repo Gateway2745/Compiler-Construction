@@ -6,12 +6,13 @@
 #include "string.h"
 
 typedef struct Term {
-    char name[20];
     struct Term* next;
+    int is_term;
+    TermType type;
 } Term;
 
 typedef struct Grammar {
-    char name[20];
+    NonTerm nt;
     struct Term* next;
 } Grammar;
 
