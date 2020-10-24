@@ -34,23 +34,23 @@
 
 <jagged3_idx> <INT> <jagged3_idx> 
 <jagged3_idx> e
-<jagged3_rng> <jagged3_idx> <SEMCOL> 
 <jagged3_rng> <jagged3_idx> <SEMCOL> <jagged3_rng>
+<jagged3_rng> <jagged3_idx> <SEMCOL> 
 
 <jagged2_single_init> <R1> <SQO> <INT> <SQC> <CLN> <KEY_SIZE> <INT> <CLN> <KEY_VALS> <CURLO> <jagged2_rng> <CURLC>
 <jagged3_single_init> <R1> <SQO> <INT> <SQC> <CLN> <KEY_SIZE> <INT> <CLN> <KEY_VALS> <CURLO> <jagged3_rng> <CURLC>
 
-<jagged2_init> <jagged2_single_init> 
 <jagged2_init> <jagged2_init> <jagged2_single_init>
-<jagged3_init> <jagged3_single_init> 
+<jagged2_init> <jagged2_single_init> 
 <jagged3_init> <jagged3_init> <jagged3_single_init>
+<jagged3_init> <jagged3_single_init> 
 
 <assgn_stmt> <var> <ASSGN> <expression>
-<array_sel> <index> 
 <array_sel> <index> <array_sel>
+<array_sel> <index> 
 <array_idx> <SQO> <array_sel> <SQC> 
-<var> <ID> 
 <var> <ID> <array_idx>
+<var> <ID> 
 
 <expression> <arithmetic_exp> 
 <expression> <boolean_exp> 

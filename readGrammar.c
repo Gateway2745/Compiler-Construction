@@ -11,9 +11,9 @@ void printList(Term* head)
 
 char* removeFirstAndLast(char* s)
 {
-    s++;
-    s[strlen(s)-1]='\0';
-    return s;
+    if(strlen(s) < 2 || s[0] != '<') return s;
+    if(s[strlen(s)-1] == '>') s[strlen(s)-1] = '\0';
+    return s+1;
 }
 
 Term* addNode(Term* head, char* word) // inserts node at end of linked list
