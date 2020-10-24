@@ -15,6 +15,13 @@ typedef struct Grammar {
     struct Term* next;
 } Grammar;
 
+typedef struct parseTree {
+    TermType grammar_term;
+    int num_children;
+    struct parseTree ** children;
+    //type stuff, later
+}
+
 typedef enum Token {
     BO, BC, SQO, SQC, CURLO, CURLC, CLN, SEMCOL, ROP, ASSGN,
     KEY_PROG, KEY_DECL, KEY_LIST, KEY_OF, KEY_VARS, KEY_ARR, R1,
