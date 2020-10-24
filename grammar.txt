@@ -27,10 +27,9 @@
 <multivar_dec> <KEY_DECL> <KEY_LIST> <KEY_OF> <KEY_VALS> <listvar> <CLN> <jagged2_dec> <SEMCOL> <jagged2_init> 
 <multivar_dec> <KEY_DECL> <KEY_LIST> <KEY_OF> <KEY_VALS> <listvar> <CLN> <jagged3_dec> <SEMCOL> <jagged3_init>
 
-
 <jagged2_idx> <SEMCOL> <INT> <jagged2_idx>
-<jagged2_idx> e
-<jagged2_rng> <INT> <jagged2_idx> 
+<jagged2_idx> e 
+<jagged2_rng> <INT> <jagged2_idx>
 
 <jagged3_idx> <INT> <jagged3_idx> 
 <jagged3_idx> e
