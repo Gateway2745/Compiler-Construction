@@ -5,17 +5,6 @@
 #include "stdio.h"
 #include "string.h"
 
-typedef struct Term {
-    struct Term* next;
-    int is_term;
-    TermType type;
-} Term;
-
-typedef struct Grammar {
-    NonTerm nt;
-    struct Term* next;
-} Grammar;
-
 typedef enum NonTerm {
     PROGRAM, DECL_LIST, ASSGN_LIST, DECL_STMT, ASSGN_STMT,
     INDEX, RNG, TYPE, ARRAY_RANGE, DTYPE,
@@ -28,18 +17,6 @@ typedef enum NonTerm {
     TERM, FACTOR, L_OR_TERM, L_AND_TERM
 } NonTerm;
 
-typedef union TermType {
-    Token tok;
-    NonTerm nt;
-} TermType;
-
-typedef struct parseTree {
-    TermType grammar_term;
-    int num_children;
-    struct parseTree ** children;
-    //type stuff, later
-} parseTree;
-
 typedef enum Token {
     BO, BC, SQO, SQC, CURLO, CURLC, CLN, SEMCOL, ROP, ASSGN,
     KEY_PROG, KEY_DECL, KEY_LIST, KEY_OF, KEY_VARS, KEY_ARR, R1,
@@ -49,6 +26,29 @@ typedef enum Token {
     END
 } Token;
 
+typedef union TermType {
+    Token tok;
+    NonTerm nt;
+} TermType;
+
+typedef struct Term {
+    struct Term* next;
+    int is_term;
+    TermType type;
+} Term;
+
+typedef struct Grammar {
+    NonTerm nt;
+    Term* next;
+} Grammar;
+
+typedef struct parseTree {
+    NonTerm nt;
+    int num_children;
+    struct parseTree ** children;
+    //type stuff, later
+} parseTree;
+
 typedef struct tokenStream {
     Token token;
     char lexeme[21];
@@ -56,7 +56,23 @@ typedef struct tokenStream {
     struct tokenStream * next;
 } tokenStream;
 
+typedef struct stackNode {
+    struct stackNode * next;
+    int is_term;
+    TermType type;
+    char val[21];
+} stackNode;
+
+typedef struct stack {
+    int size;
+    stackNode * head;
+} stack;
+
 char * loadfile (char * filename, long * sizeptr);
 void tokeniseSourcecode(char * source_file, tokenStream *s);
+
+stackNode * pop(stack * s);
+stackNode * peek(stack * s);
+void push(stack * s, stackNode * node);
 
 #endif

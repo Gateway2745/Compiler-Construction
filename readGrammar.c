@@ -4,7 +4,7 @@ void printList(Term* head)
 {
     while(head)
     {
-        printf("%s\n", head->name);
+        printf("%d\n", head->type);
         head = head->next;
     }
 }
