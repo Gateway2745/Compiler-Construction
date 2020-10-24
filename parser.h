@@ -15,7 +15,17 @@ typedef struct Grammar {
     struct Term* next;
 } Grammar;
 
-typedef enum NonTerm NonTerm;
+typedef enum NonTerm {
+    PROGRAM, DECL_LIST, ASSGN_LIST, DECL_STMT, ASSGN_STMT,
+    INDEX, RNG, TYPE, ARRAY_RANGE, DTYPE,
+    ONE_OR_MORE_VAR, LISTVAR, SINGLEVAR_DEC, MULTIVAR_DEC,
+    JAGGED2_DEC, JAGGED3_DEC, JAGGED2_INIT, JAGGED3_INIT,
+    JAGGED2_IDX, JAGGED3_IDX, JAGGED2_RNG, JAGGED3_RNG,
+    JAGGED2_SINGLE_INIT, JAGGED3_SINGLE_INIT,
+    EXPRESSION, ARRAY_SEL, VAR, ARRAY_IDX,
+    ARITHMETIC_EXP, BOOLEAN_EXP,
+    TERM, FACTOR, L_OR_TERM, L_AND_TERM
+} NonTerm;
 
 typedef union TermType {
     Token tok;
@@ -27,7 +37,7 @@ typedef struct parseTree {
     int num_children;
     struct parseTree ** children;
     //type stuff, later
-}
+} parseTree;
 
 typedef enum Token {
     BO, BC, SQO, SQC, CURLO, CURLC, CLN, SEMCOL, ROP, ASSGN,
