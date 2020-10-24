@@ -55,6 +55,7 @@ TermType getType(char * word, int * tag) {
     if(strcmp(word, "factor") == 0) {temp_tag = 0; type.nt = FACTOR;}
     if(strcmp(word, "l_or_term") == 0) {temp_tag = 0; type.nt = L_OR_TERM;}
     if(strcmp(word, "l_and_term") == 0) {temp_tag = 0; type.nt = L_AND_TERM;}
+    if(strcmp(word, "e") == 0) {temp_tag = 0; type.nt = EPSILON;}
 
     if(strcmp(word, "BO") == 0) {temp_tag = 1; type.tok = BO;}
     if(strcmp(word, "BC") == 0) {temp_tag = 1; type.tok = BC;}
