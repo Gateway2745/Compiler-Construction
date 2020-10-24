@@ -4,7 +4,9 @@ void printList(Term* head)
 {
     while(head)
     {
-        printf("%d\n", head->type);
+        if(head->is_term==0) printf("%d\n", head->type.nt);
+        else printf("%d\n", head->type.tok);
+        
         head = head->next;
     }
 }
@@ -99,7 +101,7 @@ Term* addNode(Term* head, char* word) // inserts node at end of linked list
     Term* new = (Term*) malloc(sizeof(Term));
     new->next == NULL;
     new->type = getType(word, &(new->is_term));
-    if(new->is_term == -1) printf("Terrible error\nLike North Indian filter coffee\nShould abort\n");
+    if(new->is_term == -1) printf("Unknown Symbol : %s!\nTerrible error\nLike North Indian filter coffee\nShould abort\n",word);
     if(!head) return new;
     while(last->next) last=last->next;
     last->next = new;
@@ -107,7 +109,7 @@ Term* addNode(Term* head, char* word) // inserts node at end of linked list
 }
 
 
-Grammar* readGrammar(char *filename, Grammar* g)
+void readGrammar(char *filename, Grammar* g)
 {
     int linecount=0;
     FILE *text = fopen(filename, "r");
@@ -128,8 +130,9 @@ Grammar* readGrammar(char *filename, Grammar* g)
         //printf("\n");
         while(token != NULL) 
         {
-            token[strcspn(token, "\n")] = 0;
             //printf("%s,", token);
+            token[strcspn(token, "\n")] = 0;
+            if(!strlen(token)) {token = strtok(NULL, " ");continue;} // strings with length 0 found
             token = removeFirstAndLast(token);
             g[linecount].next = addNode(g[linecount].next, token);
             token = strtok(NULL, " ");
@@ -143,5 +146,5 @@ int main()
 {
     Grammar g[100];
     readGrammar("grammar.txt",g);
-    printList(g[0].next);
+    printList(g[15].next);
 }
