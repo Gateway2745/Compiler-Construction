@@ -29,4 +29,14 @@ int main()
         printList(rules[i++]);
         printf("\n");
     }
+
+    tokenStream s;
+    tokeniseSourcecode("t2.txt", &s);
+    tokenStream * mover = &s;
+    while (mover)
+    {
+        printf("%d %s ", mover->line_num, mover->lexeme);
+        printf("%d\n", mover->token);
+        mover = mover->next;
+    }
 }

@@ -60,7 +60,7 @@ void read_symbol(char *buf, tokenStream *s, int *read) {
         s->token = OP_SLASH;
         *read = 1;
     }
-    if(strcmp(buf, "..")) {
+    if(strcmp(buf, "..") == 0) {
         s->token = ROP;
         *read = 1;
     }
@@ -130,7 +130,7 @@ void read_keyword(char *buf, tokenStream *s, int *read) {
         s->token = KEY_JAG;
         *read = strlen(buf);
     }
-    if(strcmp(buf, "int") == 0) {
+    if(strcmp(buf, "integer") == 0) {
         s->token = KEY_INT;
         *read = strlen(buf);
     }
@@ -138,7 +138,7 @@ void read_keyword(char *buf, tokenStream *s, int *read) {
         s->token = KEY_REAL;
         *read = strlen(buf);
     }
-    if(strcmp(buf, "bool") == 0) {
+    if(strcmp(buf, "boolean") == 0) {
         s->token = KEY_BOOL;
         *read = strlen(buf);
     }
@@ -184,6 +184,7 @@ void tokeniseSourcecode(char * source_file, tokenStream *s) {
 
         if(*source == '\n') {
             line_num++;
+            source++;
             continue;
         }
         if(is_whitespace(source)) {
@@ -213,7 +214,8 @@ void tokeniseSourcecode(char * source_file, tokenStream *s) {
             printf("Aborting - Token %s at line %d not recognised\n", buf, line_num);
             exit(0);
         }
-        source += read;
+        source += strlen(s->lexeme);
+
         s->next = (tokenStream *) malloc(sizeof(tokenStream));
         s = s->next;
     }
