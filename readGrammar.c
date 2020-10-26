@@ -5,7 +5,7 @@ void printList(Term* head)
     while(head)
     {
         if(head->is_term==0) printf("%d -> ", head->type.nt);
-        else printf("%d -> ", head->type.tok);
+        else printf("%d -> ", head->type.tok.token);
         
         head = head->next;
     }
@@ -59,41 +59,46 @@ TermType getType(char * word, int * tag) {
     if(strcmp(word, "l_and_term") == 0) {temp_tag = 0; type.nt = L_AND_TERM;}
     if(strcmp(word, "e") == 0) {temp_tag = 0; type.nt = EPSILON;}
 
+    if(temp_tag == 0) {
+        if(tag) *tag = 0;
+        return type;
+    }
+
     type.tok.lexeme[0] = '\0';
     type.tok.line_num = 0;
     type.tok.next = NULL;
 
-    if(strcmp(word, "BO") == 0) {temp_tag = 1; type.tok = BO;}
-    if(strcmp(word, "BC") == 0) {temp_tag = 1; type.tok = BC;}
-    if(strcmp(word, "SQO") == 0) {temp_tag = 1; type.tok = SQO;}
-    if(strcmp(word, "SQC") == 0) {temp_tag = 1; type.tok = SQC;}
-    if(strcmp(word, "CURLO") == 0) {temp_tag = 1; type.tok = CURLO;}
-    if(strcmp(word, "CURLC") == 0) {temp_tag = 1; type.tok = CURLC;}
-    if(strcmp(word, "CLN") == 0) {temp_tag = 1; type.tok = CLN;}
-    if(strcmp(word, "SEMCOL") == 0) {temp_tag = 1; type.tok = SEMCOL;}
-    if(strcmp(word, "ROP") == 0) {temp_tag = 1; type.tok = ROP;}
-    if(strcmp(word, "ASSGN") == 0) {temp_tag = 1; type.tok = ASSGN;}
-    if(strcmp(word, "KEY_PROG") == 0) {temp_tag = 1; type.tok = KEY_PROG;}
-    if(strcmp(word, "KEY_DECL") == 0) {temp_tag = 1; type.tok = KEY_DECL;}
-    if(strcmp(word, "KEY_LIST") == 0) {temp_tag = 1; type.tok = KEY_LIST;}
-    if(strcmp(word, "KEY_OF") == 0) {temp_tag = 1; type.tok = KEY_OF;}
-    if(strcmp(word, "KEY_VARS") == 0) {temp_tag = 1; type.tok = KEY_VARS;}
-    if(strcmp(word, "KEY_ARR") == 0) {temp_tag = 1; type.tok = KEY_ARR;}
-    if(strcmp(word, "R1") == 0) {temp_tag = 1; type.tok = R1;}
-    if(strcmp(word, "KEY_SIZE") == 0) {temp_tag = 1; type.tok = KEY_SIZE;}
-    if(strcmp(word, "KEY_VALS") == 0) {temp_tag = 1; type.tok = KEY_VALS;}
-    if(strcmp(word, "KEY_JAG") == 0) {temp_tag = 1; type.tok = KEY_JAG;}
-    if(strcmp(word, "KEY_INT") == 0) {temp_tag = 1; type.tok = KEY_INT;}
-    if(strcmp(word, "KEY_REAL") == 0) {temp_tag = 1; type.tok = KEY_REAL;}
-    if(strcmp(word, "KEY_BOOL") == 0) {temp_tag = 1; type.tok = KEY_BOOL;}
-    if(strcmp(word, "OP_PLUS") == 0) {temp_tag = 1; type.tok = OP_PLUS;}
-    if(strcmp(word, "OP_MINUS") == 0) {temp_tag = 1; type.tok = OP_MINUS;}
-    if(strcmp(word, "OP_STAR") == 0) {temp_tag = 1; type.tok = OP_STAR;}
-    if(strcmp(word, "OP_SLASH") == 0) {temp_tag = 1; type.tok = OP_SLASH;}
-    if(strcmp(word, "OP_AND") == 0) {temp_tag = 1; type.tok = OP_AND;}
-    if(strcmp(word, "OP_OR") == 0) {temp_tag = 1; type.tok = OP_OR;}
-    if(strcmp(word, "ID") == 0) {temp_tag = 1; type.tok = ID;}
-    if(strcmp(word, "INT") == 0) {temp_tag = 1; type.tok = INT;}
+    if(strcmp(word, "BO") == 0) {temp_tag = 1; type.tok.token = BO;}
+    if(strcmp(word, "BC") == 0) {temp_tag = 1; type.tok.token = BC;}
+    if(strcmp(word, "SQO") == 0) {temp_tag = 1; type.tok.token = SQO;}
+    if(strcmp(word, "SQC") == 0) {temp_tag = 1; type.tok.token = SQC;}
+    if(strcmp(word, "CURLO") == 0) {temp_tag = 1; type.tok.token = CURLO;}
+    if(strcmp(word, "CURLC") == 0) {temp_tag = 1; type.tok.token = CURLC;}
+    if(strcmp(word, "CLN") == 0) {temp_tag = 1; type.tok.token = CLN;}
+    if(strcmp(word, "SEMCOL") == 0) {temp_tag = 1; type.tok.token = SEMCOL;}
+    if(strcmp(word, "ROP") == 0) {temp_tag = 1; type.tok.token = ROP;}
+    if(strcmp(word, "ASSGN") == 0) {temp_tag = 1; type.tok.token = ASSGN;}
+    if(strcmp(word, "KEY_PROG") == 0) {temp_tag = 1; type.tok.token = KEY_PROG;}
+    if(strcmp(word, "KEY_DECL") == 0) {temp_tag = 1; type.tok.token = KEY_DECL;}
+    if(strcmp(word, "KEY_LIST") == 0) {temp_tag = 1; type.tok.token = KEY_LIST;}
+    if(strcmp(word, "KEY_OF") == 0) {temp_tag = 1; type.tok.token = KEY_OF;}
+    if(strcmp(word, "KEY_VARS") == 0) {temp_tag = 1; type.tok.token = KEY_VARS;}
+    if(strcmp(word, "KEY_ARR") == 0) {temp_tag = 1; type.tok.token = KEY_ARR;}
+    if(strcmp(word, "R1") == 0) {temp_tag = 1; type.tok.token = R1;}
+    if(strcmp(word, "KEY_SIZE") == 0) {temp_tag = 1; type.tok.token = KEY_SIZE;}
+    if(strcmp(word, "KEY_VALS") == 0) {temp_tag = 1; type.tok.token = KEY_VALS;}
+    if(strcmp(word, "KEY_JAG") == 0) {temp_tag = 1; type.tok.token = KEY_JAG;}
+    if(strcmp(word, "KEY_INT") == 0) {temp_tag = 1; type.tok.token = KEY_INT;}
+    if(strcmp(word, "KEY_REAL") == 0) {temp_tag = 1; type.tok.token = KEY_REAL;}
+    if(strcmp(word, "KEY_BOOL") == 0) {temp_tag = 1; type.tok.token = KEY_BOOL;}
+    if(strcmp(word, "OP_PLUS") == 0) {temp_tag = 1; type.tok.token = OP_PLUS;}
+    if(strcmp(word, "OP_MINUS") == 0) {temp_tag = 1; type.tok.token = OP_MINUS;}
+    if(strcmp(word, "OP_STAR") == 0) {temp_tag = 1; type.tok.token = OP_STAR;}
+    if(strcmp(word, "OP_SLASH") == 0) {temp_tag = 1; type.tok.token = OP_SLASH;}
+    if(strcmp(word, "OP_AND") == 0) {temp_tag = 1; type.tok.token = OP_AND;}
+    if(strcmp(word, "OP_OR") == 0) {temp_tag = 1; type.tok.token = OP_OR;}
+    if(strcmp(word, "ID") == 0) {temp_tag = 1; type.tok.token = ID;}
+    if(strcmp(word, "INT") == 0) {temp_tag = 1; type.tok.token = INT;}
 
     if(tag) *tag = temp_tag;
     return type;
