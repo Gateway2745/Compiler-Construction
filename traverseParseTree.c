@@ -14,8 +14,11 @@ void add_info(parseTree * node, link * info, typeExpressionTable * table) {
     if(node->num_children > 1) add_info(node->children[1], copy_link(info), table);
 }
 
-link * get_type(parseTree * tree) {
-    ;
+link * get_type(parseTree * tree, int is_single) {
+    int dec = (is_single) ? 3 : 6;
+    if(tree->children[dec]->children[0]->term.is_term == 0) return run_primitive(tree->children[dec]->children[0]);
+    else if(tree->children[dec]->children[0]->term.type.tok.token == KEY_ARR) return run_rect(tree->children[dec]);
+    else return run_jagged(tree->children[dec], tree->children[dec+2]);
 }
 
 void traverseDeclares(parseTree * tree, typeExpressionTable * table) {
@@ -26,7 +29,7 @@ void traverseDeclares(parseTree * tree, typeExpressionTable * table) {
     int single = (tree->children[0]->term.type.nt == SINGLEVAR_DEC);
     tree = tree->children[0];
 
-    link * info = get_type(tree);
+    link * info = get_type(tree, single);
     if(single) {
         strcpy(info->id, tree->children[1]->term.type.tok.lexeme);
         put_link(table, info);

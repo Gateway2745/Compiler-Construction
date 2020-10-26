@@ -118,7 +118,7 @@ void read_keyword(char *buf, tokenStream *s, int *read) {
         s->token = KEY_ARR;
         *read = strlen(buf);
     }
-    if(strcmp(buf, "r1") == 0) {
+    if(strcmp(buf, "R1") == 0) {
         s->token = R1;
         *read = strlen(buf);
     }
@@ -126,11 +126,11 @@ void read_keyword(char *buf, tokenStream *s, int *read) {
         s->token = KEY_SIZE;
         *read = strlen(buf);
     }
-    if(strcmp(buf, "vals") == 0) {
+    if(strcmp(buf, "values") == 0) {
         s->token = KEY_VALS;
         *read = strlen(buf);
     }
-    if(strcmp(buf, "jag") == 0) {
+    if(strcmp(buf, "jagged") == 0) {
         s->token = KEY_JAG;
         *read = strlen(buf);
     }
