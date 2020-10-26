@@ -13,12 +13,18 @@ void printList(Term* head)
 
 int main()
 {
-    Grammar g[100];
-    readGrammar("grammar.txt",g);
+    Grammar G;
+    printf("Start\n");
+    readGrammar("grammar.txt", &G);
     //printList(g[15].next);
-    TermType t = {MULTIVAR_DEC};
+    TermType t;
+    t.nt = MULTIVAR_DEC;
     int num_rules;
-    Term** rules = get_rules(g,t,&num_rules);
+    printf("Hi %d\n", G.num_rules);
+    for(int i=0;i<G.num_rules;i++) {
+        printf("%d\n", G.rules[i]->is_term);
+    }
+    Term** rules = get_rules(&G,t, &num_rules);
     printf("num rules = %d\n", num_rules);
     int i=0;
     while(i<num_rules)

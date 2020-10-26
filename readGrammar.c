@@ -103,6 +103,7 @@ Term* addNode(Term* head, char* word) // inserts node at end of linked list
     if(!head) return new;
     while(last->next) last=last->next;
     last->next = new;
+    if(new->is_term && new->type.tok.token == KEY_REAL) printf("Yaay! %p, %d\n", head->next, (!head));
     return head;
 }
 
@@ -114,6 +115,7 @@ void readGrammar(char *filename, Grammar* g)
     g->num_rules = 0;
     int size_lim = 1;
     g->rules = (Term **) malloc(size_lim * sizeof(Term *));
+
     while (fgets(line, 150, text) != NULL)
     {
         if(line[0]=='\n') continue;
@@ -127,12 +129,15 @@ void readGrammar(char *filename, Grammar* g)
         int success;
         token = strtok(line, " ");
         token = removeFirstAndLast(token); // strip '<' and '>'
+        
+        g->rules[g->num_rules] = (Term *) malloc(sizeof(Term));
         g->rules[g->num_rules]->type.nt = getType(token, &success).nt;
-        if(success <= 0) printf("Error\nSup Rohit! You're the one most likely to see this\n");
+        
+        if(success != 0) printf("Error\nSup Rohit! You're the one most likely to see this\n");
         g->rules[g->num_rules]->is_term = success;
         g->rules[g->num_rules]->next = NULL;
-        //token = strtok(NULL, " ");
-        //printf("\n");
+
+        // token = strtok(NULL, " ");
         while((token = strtok(NULL, " "))!= NULL) 
         {
             token[strcspn(token, "\n")] = 0;
@@ -144,16 +149,16 @@ void readGrammar(char *filename, Grammar* g)
         }
         (g->num_rules)++;
     }
-    g->rules = (Term **) realloc(g->rules, g->num_rules);
+    g->rules = (Term **) realloc(g->rules, g->num_rules * sizeof(Term *));
+    fclose(text);
 }
 
 Term** get_rules(Grammar* g, TermType t, int* num_rules) // returns pointer to an array of linkedlists
 {
     int j = 0;
-    for(int i=0;i<g[0].num_rules;i++) if(g->rules[i]->type.nt == t.nt) j++;
     Term** req = (Term**) malloc(j * sizeof(Term*));
     int count = 0;
-    for(int i=0;i<g[0].num_rules;i++) if(g->rules[i]->type.nt == t.nt) req[count++]=g->rules[i]->next;
+    for(int i=0;i<g->num_rules;i++) if(g->rules[i]->type.nt == t.nt) req[count++]=g->rules[i]->next;
     if(num_rules) *num_rules = j;
     if(j==0) printf("NO RULES FOUND FOR GIVEN NON-TERMINAL!\nIS THIS A TERMINAL??\nABORT NOW!!");
     return req;
