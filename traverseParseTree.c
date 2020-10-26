@@ -5,6 +5,8 @@ void traverseDeclares(parseTree * tree, typeExpressionTable * table) {
         for(int i = 0; i < tree->num_children; i++) traverseDeclares(tree->children[i], table);
         return;
     }
+    int single = (tree->children[0]->term.type.nt == SINGLEVAR_DEC);
+    tree = tree->children[0];
 }
 
 void traverseParseTree(parseTree *t, typeExpressionTable *Table) {

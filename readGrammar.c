@@ -41,6 +41,7 @@ TermType getType(char * word, int * tag) {
     if(strcmp(word, "var") == 0) {temp_tag = 0; type.nt = VAR;}
     if(strcmp(word, "array_idx") == 0) {temp_tag = 0; type.nt = ARRAY_IDX;}
     if(strcmp(word, "arithmetic_exp") == 0) {temp_tag = 0; type.nt = ARITHMETIC_EXP;}
+    if(strcmp(word, "additive_term") == 0) {temp_tag = 0; type.nt = ADDITIVE_TERM;}
     if(strcmp(word, "boolean_exp") == 0) {temp_tag = 0; type.nt = BOOLEAN_EXP;}
     if(strcmp(word, "term") == 0) {temp_tag = 0; type.nt = TERM;}
     if(strcmp(word, "factor") == 0) {temp_tag = 0; type.nt = FACTOR;}

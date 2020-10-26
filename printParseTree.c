@@ -33,6 +33,7 @@ void get_str(TermType t, char * buf, int is_term) {
         if(t.nt == ARRAY_IDX) strcpy(buf, "ARRAY_IDX");
         if(t.nt == ARITHMETIC_EXP) strcpy(buf, "ARITHMETIC_EXP");
         if(t.nt == BOOLEAN_EXP) strcpy(buf, "BOOLEAN_EXP");
+        if(t.nt == ADDITIVE_TERM) strcpy(buf, "ADDITIVE_TERM");
         if(t.nt == TERM) strcpy(buf, "TERM");
         if(t.nt == FACTOR) strcpy(buf, "FACTOR");
         if(t.nt == L_OR_TERM) strcpy(buf, "L_OR_TERM");
