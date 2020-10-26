@@ -41,9 +41,9 @@
 <jagged2_single_init> <R1> <SQO> <INT> <SQC> <CLN> <KEY_SIZE> <INT> <CLN> <KEY_VALS> <CURLO> <jagged2_rng> <CURLC>
 <jagged3_single_init> <R1> <SQO> <INT> <SQC> <CLN> <KEY_SIZE> <INT> <CLN> <KEY_VALS> <CURLO> <jagged3_rng> <CURLC>
 
-<jagged2_init> <jagged2_init> <jagged2_single_init>
+<jagged2_init> <jagged2_single_init> <jagged2_init>
 <jagged2_init> <jagged2_single_init> 
-<jagged3_init> <jagged3_init> <jagged3_single_init>
+<jagged3_init> <jagged3_single_init> <jagged3_init>
 <jagged3_init> <jagged3_single_init> 
 
 <assgn_stmt> <var> <ASSGN> <expression>
