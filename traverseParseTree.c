@@ -212,11 +212,137 @@ link get_data_type_left(parseTree * tree, typeExpressionTable * table)
     return tree->type_info;
 }
 
-// link get_data_type_right(parseTree * tree, parseTree* prev, typeExpressionTable * table)
-// {
-    
-// }
 
+int is_arithmetic_comaptible(link l1,link l2,char* err)
+{
+    if(l1.arr_info==l2.arr_info)
+    {
+        if(l1.arr_info==PRIMITIVE)
+        {
+            if(l1.type.prim_info!=l2.type.prim_info)
+            {
+                snprintf(err, 200, "PRIMITIVE TYPES %s and %s DON'T MATCH!!", l1.type.prim_info, l2.type.prim_info);
+                return 0;
+            }
+            return 1;
+        }
+        if(l1.arr_info==RECT_ARR)
+        {
+            rect_arr_te r1 = l1.type.rect_arr_info;
+            rect_arr_te r2 = l2.type.rect_arr_info;
+
+            if(r1.betype!=INTEGER || r2.betype!=INTEGER)
+            {
+                snprintf(err, 200, "ONLY INTEGER ARRAYS ALLOWED!!");
+                return 0;
+            }
+            if(r1.num_dim!=r2.num_dim)
+            {
+                snprintf(err, 200, "ARRAYS MUST HAVE SAME DIMENSION FOR ARITHMETIC!!");
+            }
+
+            Var_Pair* v1 = r1.dim_range;
+            Var_Pair* v2 = r2.dim_range;
+
+            for(int i=0;i<r1.num_dim;i++)
+            {
+                if(v1[i].is_r1_static==0 || v1[i].is_r2_static==0 || v2[i].is_r1_static==0 || v2[i].is_r2_static==0) 
+                {
+                    snprintf(err, 200, "ARRAYS DIMENSIONS MUST BE FULLY SPECIFIED FOR ARITHMETIC!!");
+                    return 0;
+                }
+                if(v1[i].r2.r_s - v1[i].r1.r_s != v2[i].r2.r_s - v2[i].r1.r_s)
+                {
+                    snprintf(err, 200, "ARRAYS MUST HAVE SAME DIMENSION FOR ARITHMETIC!!");
+                    return 0;
+                }
+            }
+            return 1;
+        }
+        if(l1.arr_info==JAG_ARR)
+        {
+            jagged_arr_te r1 = l1.type.jagged_arr_info;
+            jagged_arr_te r2 = l2.type.jagged_arr_info;
+
+            if(r1.betype!=INTEGER || r2.betype!=INTEGER)
+            {
+                snprintf(err, 200, "ONLY INTEGER ARRAYS ALLOWED!!");
+                return 0;
+            }
+            if(r1.num_dim!=r2.num_dim) // checks for 2D and 3D jagged array
+            {
+                snprintf(err, 200, "ARRAYS MUST HAVE SAME DIMENSION FOR ARITHMETIC!!");
+                return 0;
+            }
+            if(r1.range_R1.r2 - r1.range_R1.r1 != r2.range_R1.r2 - r2.range_R1.r1) // checks for same number of R1 dimensions
+            {
+                snprintf(err, 200, "ARRAYS MUST HAVE SAME DIMENSION FOR ARITHMETIC!!");
+                return 0;
+            }
+
+            Int_Pair* v1 = r1.range_R2;
+            Int_Pair* v2 = r2.range_R2;
+
+            for(int i=0;i<r1.num_dim;i++)
+            {
+                if(v1[i].r2 - v1[i].r1 != v2[i].r2 - v2[i].r1)
+                {
+                    snprintf(err, 200, "ARRAYS MUST HAVE SAME DIMENSION FOR ARITHMETIC!!");
+                    return 0;
+                }
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
+
+link get_data_type_right_arithmetic(parseTree * tree, typeExpressionTable * table)
+{
+    if(tree->num_children==0)
+    {
+        char* lexeme = tree->term.type.tok.lexeme;
+        int line_number = tree->term.type.tok.line_num;
+        link* l = get_link(table,lexeme);
+        if(!l)
+        {
+            printf("Variable %s Not Declared \n Line Number - %d \n Exiting!!", lexeme, line_number);
+            exit(0);      // exiting program
+        }
+        tree->type_info = *l;
+        return *l;
+    }
+
+    link d_left;
+    link d_right;
+
+    d_left = get_data_type_right_arithmetic(tree->children[0],table);
+
+    if(tree->num_children==3)
+    {
+        char err_msg[200];
+        int success;
+        d_right = get_data_type_right_arithmetic(tree->children[2],table);
+        success = is_arithmetic_comaptible(d_left,d_right,err_msg);
+
+        if(!success)
+        {
+            printf("%s\n LINE-NUMBER %d\n", err_msg,tree->term.type.tok.line_num);
+            exit(0);
+        }
+
+    }
+    
+    tree->type_info = d_left; // check this...assigns internal node of parse tree the same link as its left child( only same type expression is important here)
+
+}
+
+
+//TO-DO
+link get_data_type_right_boolean(parseTree * tree, typeExpressionTable * table)
+{
+    
+}
 
 void traverseAssigns(parseTree * tree, typeExpressionTable * table) {
     if(!(tree->term.is_term == 0 && tree->term.type.nt == ASSGN_STMT)) {
@@ -225,8 +351,12 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table) {
     }
     
     link type_left = get_data_type_left(tree->children[0],table);
-    link type_right = get_data_type_right(tree->children[2]); 
+    link type_right;
 
+    int is_arithmetic = tree->children[2]->children[0]->term.type.nt == ARITHMETIC_EXP;
+
+    if(is_arithmetic) type_right = get_data_type_right_arithmetic(tree->children[2],table); 
+    else type_right = get_data_type_right_boolean(tree->children[2],table);
 }
 
 
