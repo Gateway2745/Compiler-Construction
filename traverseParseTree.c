@@ -14,6 +14,11 @@ void add_info(parseTree * node, link * info, typeExpressionTable * table) {
     if(node->num_children > 1) add_info(node->children[1], copy_link(info), table);
 }
 
+int get_length_idx(parseTree * idx) {
+    if(idx->num_children == 1 && idx->children[0]->term.type.nt == EPSILON) return 0;
+    return 1 + get_length(idx->children[1]);
+}
+
 link * run_primitive(parseTree * node) {
     link * info = (link *) malloc(sizeof(link));
     info->arr_info = PRIMITIVE;
@@ -24,6 +29,8 @@ link * run_primitive(parseTree * node) {
     else printf("Error - Unknown primitive %s\n", node->children[0]->term.type.tok.lexeme);
     return info;
 }
+
+// Start of horrible sphagetti code
 
 link * run_jagged(parseTree * dec, parseTree * init) {
     link * info = (link *) malloc(sizeof(link));
@@ -69,10 +76,37 @@ link * run_jagged(parseTree * dec, parseTree * init) {
     }
     
     for(int i = 0; i < range_1; i++) {
-        info->type.jagged_arr_info.range_R2[i].num_dim = 1;
-        info->type.jagged_arr_info.range_R2[i].dims = (int *) malloc(sizeof(int));
+        int num_dim = atoi(init->children[0]->children[6]->term.type.tok.lexeme);
+        info->type.jagged_arr_info.range_R2[i].num_dim = num_dim;
+        info->type.jagged_arr_info.range_R2[i].dims = (int *) malloc(num_dim * sizeof(int));
+        parseTree * range = init->children[0]->children[10];
+
+        for(int j = 0; j < num_dim; j++) {
+            int length = get_length_idx(range->children[0]);
+            if(length == 0) {
+                printf("Error - Line %d - Detected 0 length subrange\n", init->children[0]->children[6]->term.type.tok.line_num);
+                return NULL;
+            }
+            info->type.jagged_arr_info.range_R2[i].dims[j] = length;
+            if(range->num_children < 3 && (j < num_dim - 1)) {
+                printf("Error - Line %d - Size mismatch\n", range->children[0]->children[0]->term.type.tok.line_num);
+                return NULL;
+            }
+        }
+        if(init->num_children < 2 && (i < range_1 - 1) || range->num_children > 1) {
+            printf("Error - Line %d - Size mismatch\n", init->children[0]->children[6]->term.type.tok.line_num);
+            return NULL;
+        }
+        init = init->children[1];
     }
+    if(init->num_children > 1) {
+        printf("Error - Line %d - Size mismatch\n", init->children[0]->children[6]->term.type.tok.line_num);
+        return NULL;
+    }
+    return info;
 }
+
+// Horrible sphagetti code <hopefully> ends here
 
 link * get_type(parseTree * tree, int is_single) {
     int dec = (is_single) ? 3 : 6;

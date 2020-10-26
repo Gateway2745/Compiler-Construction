@@ -36,7 +36,7 @@
 <jagged3_idx> <INT> <jagged3_idx> 
 <jagged3_idx> e
 <jagged3_rng> <jagged3_idx> <SEMCOL> <jagged3_rng>
-<jagged3_rng> <jagged3_idx> <SEMCOL> 
+<jagged3_rng> <jagged3_idx>
 
 <jagged2_single_init> <R1> <SQO> <INT> <SQC> <CLN> <KEY_SIZE> <INT> <CLN> <KEY_VALS> <CURLO> <jagged2_rng> <CURLC>
 <jagged3_single_init> <R1> <SQO> <INT> <SQC> <CLN> <KEY_SIZE> <INT> <CLN> <KEY_VALS> <CURLO> <jagged3_rng> <CURLC>
