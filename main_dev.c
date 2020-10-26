@@ -31,7 +31,7 @@ int main()
     }
 
     tokenStream s;
-    tokeniseSourcecode("t2.txt", &s);
+    tokeniseSourcecode("t6.txt", &s);
     tokenStream * mover = &s;
     while (mover)
     {

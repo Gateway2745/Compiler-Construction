@@ -60,9 +60,13 @@ void read_symbol(char *buf, tokenStream *s, int *read) {
         s->token = OP_SLASH;
         *read = 1;
     }
+    if(strcmp(buf, "–") == 0) {         // Very weird
+        s->token = OP_MINUS;
+        *read = 1;
+    }
     if(strcmp(buf, "..") == 0) {
         s->token = ROP;
-        *read = 1;
+        *read = 2;
     }
     if(strcmp(buf, "|||") == 0) {
         s->token = OP_OR;
