@@ -50,8 +50,35 @@ typedef struct Grammar {
     int num_rules;
 } Grammar;
 
+
+
+typedef struct Pair{
+    int x;
+    int y;
+} Pair;
+
+typedef struct rng_R2{   // used in type expression of jagged array  (e.g (3,[ 5, 3, 5]))
+    int num_dim;
+    int* dims;
+} rng_R2;
+
+typedef struct rect_arr_te{ // type expression of rectangular array
+    enum basic_element_type {INTEGER} betype;  // only basic type allowed is integer
+    int num_dim;
+    Pair* dim_range;   
+} rect_arr_te;
+
+typedef struct jagged_arr_te{
+    enum basic_element_type {INTEGER} betype;  // only basic type allowed is integer
+    int num_dim;
+    Pair range_R1;
+    rng_R2* range_R2;
+} jagged_arr_te;
+
 typedef union type_exp {
-    ;
+    enum primitive_info {INTEGER, REAL, BOOLEAN} prim_info;
+    rect_arr_te rect_arr_info;
+    jagged_arr_te jagged_arr_info;
 } type_exp;
 
 typedef struct link {
