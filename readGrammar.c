@@ -111,21 +111,28 @@ Term* addNode(Term* head, char* word) // inserts node at end of linked list
 
 void readGrammar(char *filename, Grammar* g)
 {
-    int linecount=0;
     FILE *text = fopen(filename, "r");
     char line[150];
+    g->num_rules = 0;
+    int size_lim = 1;
+    g->rules = (Term **) malloc(size_lim * sizeof(Term *));
     while (fgets(line, 150, text) != NULL)
     {
         if(line[0]=='\n') continue;
         // printf("%s", line);
+        if(g->num_rules == size_lim) {
+            size_lim *= 2;
+            g->rules = (Term **) realloc(g->rules, size_lim * sizeof(Term *));
+        }
 
         char *token;
         int success;
         token = strtok(line, " ");
         token = removeFirstAndLast(token); // strip '<' and '>'
-        g[linecount].nt = getType(token, &success).nt;
-        if(success != 0) printf("Error\nSup Rohit! You're the one most likely to see this\n");
-        g[linecount].next=NULL;
+        g->rules[g->num_rules]->type.nt = getType(token, &success).nt;
+        if(success <= 0) printf("Error\nSup Rohit! You're the one most likely to see this\n");
+        g->rules[g->num_rules]->is_term = success;
+        g->rules[g->num_rules]->next = NULL;
         //token = strtok(NULL, " ");
         //printf("\n");
         while((token = strtok(NULL, " "))!= NULL) 
@@ -134,28 +141,23 @@ void readGrammar(char *filename, Grammar* g)
             if(!strlen(token)) continue; // strings with length 0 found
             //printf("%s,", token);
             token = removeFirstAndLast(token);
-            g[linecount].next = addNode(g[linecount].next, token);
+            g->rules[g->num_rules] = addNode(g->rules[g->num_rules], token);
             //token = strtok(NULL, " ");
         }
-        linecount++;
+        (g->num_rules)++;
     }
-    for(int i=0;i<linecount;i++) g[i].num_rules=linecount; // store total number of rules
-
+    g->rules = (Term **) realloc(g->rules, g->num_rules);
 }
 
 Term** get_rules(Grammar* g, TermType t, int* num_rules) // returns pointer to an array of linkedlists
 {
-    Term** req = (Term**) malloc(10 * sizeof(Term*)); // assuming one nonterminal has max 10 rules
-    int j=0;
-    for(int i=0;i<g[0].num_rules;i++)
-    {
-        if(g[i].nt==t.nt) req[j++]=g[i].next;
-    }
-    *num_rules = j;
-    if(j==0)
-    {
-        printf("NO RULES FOUND FOR GIVEN NON-TERMINAL!\nIS THIS A TERMINAL??\nABORT NOW!!");
-    }
+    int j = 0;
+    for(int i=0;i<g[0].num_rules;i++) if(g->rules[i]->type.nt == t.nt) j++;
+    Term** req = (Term**) malloc(j * sizeof(Term*));
+    int count = 0;
+    for(int i=0;i<g[0].num_rules;i++) if(g->rules[i]->type.nt == t.nt) req[count++]=g->rules[i]->next;
+    if(num_rules) *num_rules = j;
+    if(j==0) printf("NO RULES FOUND FOR GIVEN NON-TERMINAL!\nIS THIS A TERMINAL??\nABORT NOW!!");
     return req;
 }	
 
