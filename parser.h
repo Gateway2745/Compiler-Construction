@@ -82,6 +82,7 @@ void traverseParseTree(parseTree *t, typeExpressionTable *Table);
 void printParseTree(parseTree * t);
 void printTypeExpressionTable(typeExpressionTable T);
 
+void get_str(TermType t, char * buf, int is_term);
 Term** get_rules(Grammar* g, TermType t, int* num_rules);
 
 stackNode * pop(stack * s);

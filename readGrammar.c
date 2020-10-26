@@ -103,7 +103,6 @@ Term* addNode(Term* head, char* word) // inserts node at end of linked list
     if(!head) return new;
     while(last->next) last=last->next;
     last->next = new;
-    if(new->is_term && new->type.tok.token == KEY_REAL) printf("Yaay! %p, %d\n", head->next, (!head));
     return head;
 }
 
@@ -156,6 +155,7 @@ void readGrammar(char *filename, Grammar* g)
 Term** get_rules(Grammar* g, TermType t, int* num_rules) // returns pointer to an array of linkedlists
 {
     int j = 0;
+    for(int i=0;i<g->num_rules;i++) if(g->rules[i]->type.nt == t.nt) j++;
     Term** req = (Term**) malloc(j * sizeof(Term*));
     int count = 0;
     for(int i=0;i<g->num_rules;i++) if(g->rules[i]->type.nt == t.nt) req[count++]=g->rules[i]->next;
