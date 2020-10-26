@@ -55,16 +55,17 @@ typedef union Var {
     int r_s;      // static range
 } Var;
 
-typedef struct Pair {
-    Var r1;
-    Var r2;
-} Pair;
-
-typedef struct Range{
+typedef struct Var_Pair {
     int is_r1_static;  // check if range 1 is static or dynamic
     int is_r2_static;
-    Pair p;
-} Range;
+    Var r1;
+    Var r2;
+} Var_Pair;
+
+typedef struct Int_Pair {
+    int r1;
+    int r2;
+} Int_Pair;
 
 typedef struct rng_R2{   // used in type expression of jagged array  (e.g (3,[ 5, 3, 5]))
     int num_dim;
@@ -74,13 +75,13 @@ typedef struct rng_R2{   // used in type expression of jagged array  (e.g (3,[ 5
 typedef struct rect_arr_te{ // type expression of rectangular array
     enum basic_element_type {INTEGER} betype;  // only basic type allowed is integer
     int num_dim;
-    Pair* dim_range;   
+    Var_Pair* dim_range;   
 } rect_arr_te;
 
 typedef struct jagged_arr_te{
     enum basic_element_type {INTEGER} betype;  // only basic type allowed is integer
     int num_dim;
-    Pair range_R1;
+    Int_Pair range_R1;
     rng_R2* range_R2;
 } jagged_arr_te;
 
