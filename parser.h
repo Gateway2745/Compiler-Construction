@@ -44,7 +44,7 @@ typedef struct Grammar {
 } Grammar;
 
 typedef struct parseTree {
-    NonTerm nt;
+    Term term;
     int num_children;
     struct parseTree ** children;
     //type stuff, later
