@@ -69,11 +69,27 @@ typedef struct stack {
     stackNode * head;
 } stack;
 
-typedef struct typeExpressionTable {
+typedef struct type_exp {
     ;
+} type_exp;
+
+typedef struct link {
+    link * next;
+    link * prev;
+    char id[21];                                                // Field 1
+    enum arr_info {PRIMITIVE, RECT_ARR, JAG_ARR} arr_info;      // Field 2
+    enum arr_storage {STATIC, DYNAMIC, NONE} arr_storage;       // Field 3
+    type_exp type;                                              // Field 4
+} link;
+
+typedef struct typeExpressionTable {
+    link * heads[16];
 } typeExpressionTable;
 
 char * loadfile (char * filename, long * sizeptr);
+
+link * get_link(typeExpressionTable * t, char * str);
+void put_link(typeExpressionTable * t, link * l);
 
 void tokeniseSourcecode(char * source_file, tokenStream *s);
 void readGrammar(char *filename, Grammar* g);
