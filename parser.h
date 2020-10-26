@@ -69,8 +69,18 @@ typedef struct stack {
     stackNode * head;
 } stack;
 
+typedef struct typeExpressionTable {
+    ;
+} typeExpressionTable;
+
 char * loadfile (char * filename, long * sizeptr);
+
 void tokeniseSourcecode(char * source_file, tokenStream *s);
+void readGrammar(char *filename, Grammar* g);
+void createParseTree(parseTree *t, tokenStream *s, Grammar g);
+void traverseParseTree(parseTree *t, typeExpressionTable *Table);
+void printParseTree(parseTree * t);
+void printTypeExpressionTable(typeExpressionTable T);
 
 stackNode * pop(stack * s);
 stackNode * peek(stack * s);
