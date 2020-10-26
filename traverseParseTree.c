@@ -131,6 +131,30 @@ void traverseDeclares(parseTree * tree, typeExpressionTable * table) {
     else add_info(tree->children[4], info, table);
 }
 
+link get_data_type_left(parseTree * tree, typeExpressionTable * table)
+{
+    if(tree->num_children==0)
+    {
+        char* lexeme = tree->term.type.tok.lexeme;
+        int line_number = tree->term.type.tok.line_num;
+        link* l = get_link(table,lexeme);
+        if(!l)
+        {
+            printf("Variable %s Not Declared \n Line Number - %d \n Exiting!!", lexeme, line_number);
+            exit(0);      // exiting program
+        }
+        tree->type_info = *l;
+        return *l;
+    }
+    tree->type_info = get_data_type_left(tree->children[0], table); // assign same link to all nodes on left subtree (left-subtree of assgn is linear chain) 
+    return tree->type_info;
+}
+
+// link get_data_type_right(parseTree * tree, parseTree* prev, typeExpressionTable * table)
+// {
+    
+// }
+
 
 void traverseAssigns(parseTree * tree, typeExpressionTable * table) {
     if(!(tree->term.is_term == 0 && tree->term.type.nt == ASSGN_STMT)) {
@@ -138,6 +162,8 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table) {
         return;
     }
     
+    link type_left = get_data_type_left(tree->children[0],table);
+    link type_right = get_data_type_right(tree->children[2]); 
 
 }
 
