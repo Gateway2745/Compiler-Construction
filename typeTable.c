@@ -23,6 +23,7 @@ link * get_link(typeExpressionTable * t, char * str) {
 void put_link(typeExpressionTable * t, link * l) {
     if(get_link(t, l->id)) {
         printf("Error - ID already used\n");
+        return;
     }
     int bucket_num = hash(l->id);
     l->prev = *(t->heads) + bucket_num;

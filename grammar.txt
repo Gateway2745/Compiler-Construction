@@ -56,8 +56,11 @@
 <expression> <var> 
 <expression> <INT>
 
-<arithmetic_exp> <arithmetic_exp> <OP_PLUS> <term> 
-<arithmetic_exp> <arithmetic_exp> <OP_MINUS> <term> 
+<arithmetic_exp> <additive_term> <OP_PLUS> <term> 
+<arithmetic_exp> <additive_term> <OP_MINUS> <term> 
+<additive_term> <additive_term> <OP_PLUS> <term>
+<additive_term> <additive_term> <OP_MINUS> <term>
+<additive_term> <term>
 <arithmetic_exp> <term> <OP_STAR> <factor> 
 <arithmetic_exp> <term> <OP_SLASH> <factor>
 
