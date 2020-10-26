@@ -57,7 +57,7 @@ typedef union Var {
 
 typedef struct Var_Pair {
     int is_r1_static;  // check if range 1 is static or dynamic
-    int is_r2_static;
+    int is_r2_static;   // 1 for static, 0 for dynamic
     Var r1;
     Var r2;
 } Var_Pair;

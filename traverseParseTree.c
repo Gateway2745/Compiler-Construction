@@ -108,10 +108,72 @@ link * run_jagged(parseTree * dec, parseTree * init) {
 
 // Horrible sphagetti code <hopefully> ends here
 
-link * get_type(parseTree * tree, int is_single) {
+int get_depth(parseTree * node) {
+    if(node->num_children < 4) return 1;
+    else return 1 + get_depth(node->children[3]);
+}
+
+int fill_ranges(parseTree * node, Var_Pair * pairs, typeExpressionTable * table) {
+    parseTree * lower = node->children[1]->children[0]->children[0];
+    parseTree * higher = node->children[1]->children[2]->children[0];
+    if(lower->term.type.tok.token == ID) {
+        link * bound = get_link(table, lower->term.type.tok.lexeme);
+        if(!bound) {
+            printf("Error - Line %d - Identifier not declared\n", lower->term.type.tok.line_num);
+            return -1;
+        }
+        if(!(bound->arr_info == PRIMITIVE && bound->type.prim_info == INTEGER)) {
+            printf("Error - Line %d - Non integer bounds not allowed\n", lower->term.type.tok.line_num);
+            return -1;
+        }
+        pairs[0].is_r1_static = 0;
+        strcpy(pairs[0].r1.r_d, lower->term.type.tok.lexeme);
+    }
+    else {
+        pairs[0].is_r1_static = 1;
+        pairs[0].r1.r_s = atoi(lower->term.type.tok.lexeme);
+    }
+    if(higher->term.type.tok.token == ID) {
+        link * bound = get_link(table, higher->term.type.tok.lexeme);
+        if(!bound) {
+            printf("Error - Line %d - Identifier not declared\n", higher->term.type.tok.line_num);
+            return -1;
+        }
+        if(!(bound->arr_info == PRIMITIVE && bound->type.prim_info == INTEGER)) {
+            printf("Error - Line %d - Non integer bounds not allowed\n", higher->term.type.tok.line_num);
+            return -1;
+        }
+        pairs[0].is_r2_static = 0;
+        strcpy(pairs[0].r2.r_d, higher->term.type.tok.lexeme);
+    }
+    else {
+        pairs[0].is_r2_static = 1;
+        pairs[0].r2.r_s = atoi(higher->term.type.tok.lexeme);
+    }
+    if(pairs[0].is_r1_static && pairs[0].is_r2_static && (pairs[0].r1.r_s > pairs[0].r2.r_s)) {
+        printf("Error - Line %d - Lower bound cannot exceed upper bound\n", higher->term.type.tok.line_num);
+        return -1;
+    }
+    if(node->num_children == 3) return 0;
+    return fill_ranges(node->children[3], pairs+1, table);
+}
+
+link * run_rect(parseTree * node, typeExpressionTable * table) {
+    link * info = (link *) malloc(sizeof(link));
+    info->arr_info = RECT_ARR;
+    info->type.rect_arr_info.betype = INTEGER;
+    int depth = get_depth(node->children[1]);
+    info->type.rect_arr_info.num_dim = depth;
+    info->type.rect_arr_info.dim_range = (Var_Pair *) malloc(depth * sizeof(Var_Pair));
+    int success = fill_ranges(node->children[1], info->type.rect_arr_info.dim_range, table);
+    if(success == -1) return NULL;
+    return info;
+}
+
+link * get_type(parseTree * tree, int is_single, typeExpressionTable * table) {
     int dec = (is_single) ? 3 : 6;
     if(tree->children[dec]->children[0]->term.is_term == 0) return run_primitive(tree->children[dec]->children[0]);
-    else if(tree->children[dec]->children[0]->term.type.tok.token == KEY_ARR) return run_rect(tree->children[dec]);
+    else if(tree->children[dec]->children[0]->term.type.tok.token == KEY_ARR) return run_rect(tree->children[dec], table);
     else return run_jagged(tree->children[dec], tree->children[dec+2]);
 }
 
@@ -123,7 +185,7 @@ void traverseDeclares(parseTree * tree, typeExpressionTable * table) {
     int single = (tree->children[0]->term.type.nt == SINGLEVAR_DEC);
     tree = tree->children[0];
 
-    link * info = get_type(tree, single);
+    link * info = get_type(tree, single, table);
     if(single) {
         strcpy(info->id, tree->children[1]->term.type.tok.lexeme);
         put_link(table, info);
