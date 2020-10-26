@@ -14,6 +14,21 @@ void add_info(parseTree * node, link * info, typeExpressionTable * table) {
     if(node->num_children > 1) add_info(node->children[1], copy_link(info), table);
 }
 
+link * run_primitive(parseTree * node) {
+    link * info = (link *) malloc(sizeof(link));
+    info->arr_info = PRIMITIVE;
+    info->arr_storage = NONE;
+    if(node->children[0]->term.type.tok.token == KEY_INT) info->type.prim_info = INTEGER;
+    else if(node->children[0]->term.type.tok.token == KEY_BOOL) info->type.prim_info = BOOLEAN;
+    else if(node->children[0]->term.type.tok.token == KEY_REAL) info->type.prim_info = REAL;
+    else printf("Error - Unknown primitive %s\n", node->children[0]->term.type.tok.lexeme);
+    return info;
+}
+
+link * run_jagged(parseTree * dec, parseTree * init) {
+    ;
+}
+
 link * get_type(parseTree * tree, int is_single) {
     int dec = (is_single) ? 3 : 6;
     if(tree->children[dec]->children[0]->term.is_term == 0) return run_primitive(tree->children[dec]->children[0]);
