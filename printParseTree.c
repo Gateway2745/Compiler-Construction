@@ -84,7 +84,7 @@ void print_rule (parseTree * t) {
     get_str(t->term.type, buf, 0);
     printf("Grammar - %s ->", buf);
     for(int i = 0; i < t->num_children; i++) {
-        get_str(t->children[i]->term.type, t->children[i]->term.is_term);
+        get_str(t->children[i]->term.type, buf, t->children[i]->term.is_term);
         printf(" %s", buf);
     }
 }
@@ -95,10 +95,10 @@ void internalPrintParseTree(parseTree * t, int depth) {
         char * lexeme = (t->term.is_term) ? t->term.type.tok.lexeme : NULL;
         int line_num = (t->term.is_term) ? t->term.type.tok.line_num : -1;
         get_str(t->term.type, buf, t->term.is_term);
-        printf("Symbol - %25c", buf);
+        printf("Symbol - %25s", buf);
         printf("Is_term - %d", t->term.is_term);
         //type stuff
-        printf("Lexeme - %20c", lexeme);
+        printf("Lexeme - %20s", lexeme);
         printf("Line - %3d\n", line_num);
         printf("Depth - %3d\n", depth);
         if(t->term.is_term == 0) {

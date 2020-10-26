@@ -1,16 +1,5 @@
 #include "parser.h"
 
-void printList(Term* head)
-{
-    while(head)
-    {
-        if(head->is_term==0) printf("%d -> ", head->type.nt);
-        else printf("%d -> ", head->type.tok.token);
-        
-        head = head->next;
-    }
-}
-
 char* removeFirstAndLast(char* s)
 {
     if(strlen(s) < 2 || s[0] != '<') return s;
@@ -168,22 +157,4 @@ Term** get_rules(Grammar* g, TermType t, int* num_rules) // returns pointer to a
     if(num_rules) *num_rules = j;
     if(j==0) printf("NO RULES FOUND FOR GIVEN NON-TERMINAL!\nIS THIS A TERMINAL??\nABORT NOW!!");
     return req;
-}	
-
-
-int main()
-{
-    Grammar g[100];
-    readGrammar("grammar.txt",g);
-    //printList(g[15].next);
-    TermType t = {MULTIVAR_DEC};
-    int num_rules;
-    Term** rules = get_rules(g,t,&num_rules);
-    printf("num rules = %d\n", num_rules);
-    int i=0;
-    while(i<num_rules)
-    {
-        printList(rules[i++]);
-        printf("\n");
-    }
 }

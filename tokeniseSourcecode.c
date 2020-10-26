@@ -40,10 +40,6 @@ void read_symbol(char *buf, tokenStream *s, int *read) {
         s->token = SEMCOL;
         *read = 1;
     }
-    if(buf[0] == '..') {
-        s->token = ROP;
-        *read = 1;
-    }
     if(buf[0] == '=') {
         s->token = ASSGN;
         *read = 1;
@@ -62,6 +58,10 @@ void read_symbol(char *buf, tokenStream *s, int *read) {
     }
     if(buf[0] == '/') {
         s->token = OP_SLASH;
+        *read = 1;
+    }
+    if(strcmp(buf, "..")) {
+        s->token = ROP;
         *read = 1;
     }
     if(strcmp(buf, "|||") == 0) {
@@ -175,9 +175,9 @@ void tokeniseSourcecode(char * source_file, tokenStream *s) {
     buf[20] = '\0';
     int temp;
 
-    if(s==NULL) {
+    if(!s) {
         printf("Provide proper tokenStream head\n");
-        return -1;
+        return;
     }
 
     while(*source) {

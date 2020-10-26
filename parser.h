@@ -27,6 +27,13 @@ typedef enum Token {
     END
 } Token;
 
+typedef struct tokenStream {
+    Token token;
+    char lexeme[21];
+    int line_num;
+    struct tokenStream * next;
+} tokenStream;
+
 typedef union TermType {
     tokenStream tok;
     NonTerm nt;
@@ -49,13 +56,6 @@ typedef struct parseTree {
     struct parseTree ** children;
     //type stuff, later
 } parseTree;
-
-typedef struct tokenStream {
-    Token token;
-    char lexeme[21];
-    int line_num;
-    struct tokenStream * next;
-} tokenStream;
 
 typedef struct stackNode {
     struct stackNode * next;
@@ -81,6 +81,8 @@ void createParseTree(parseTree *t, tokenStream *s, Grammar g);
 void traverseParseTree(parseTree *t, typeExpressionTable *Table);
 void printParseTree(parseTree * t);
 void printTypeExpressionTable(typeExpressionTable T);
+
+Term** get_rules(Grammar* g, TermType t, int* num_rules);
 
 stackNode * pop(stack * s);
 stackNode * peek(stack * s);
