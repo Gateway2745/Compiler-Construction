@@ -28,7 +28,7 @@ typedef enum Token {
 } Token;
 
 typedef union TermType {
-    Token tok;
+    tokenStream tok;
     NonTerm nt;
 } TermType;
 
