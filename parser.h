@@ -50,12 +50,21 @@ typedef struct Grammar {
     int num_rules;
 } Grammar;
 
+typedef union Var {
+    char r_d[21]; // dynamic range
+    int r_s;      // static range
+} Var;
 
-
-typedef struct Pair{
-    int x;
-    int y;
+typedef struct Pair {
+    Var r1;
+    Var r2;
 } Pair;
+
+typedef struct Range{
+    int is_r1_static;  // check if range 1 is static or dynamic
+    int is_r2_static;
+    Pair p;
+} Range;
 
 typedef struct rng_R2{   // used in type expression of jagged array  (e.g (3,[ 5, 3, 5]))
     int num_dim;
