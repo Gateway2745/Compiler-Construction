@@ -5,13 +5,16 @@ link * copy_link(link * source) {
     link * new = (link *) malloc(sizeof(link));
     new->arr_info = source->arr_info;
     new->arr_storage = source->arr_storage;
-    new->type = new->type;
-    return new;
+    new->type = source->type;
+   return new;
 }
 
 void add_info(parseTree * node, link * info, typeExpressionTable * table) {
     strcpy(info->id, node->children[0]->term.type.tok.lexeme);
-    printf("single %d prj %d%d%d sdn %d%d%d id %s\n", 0, info->arr_info==PRIMITIVE, info->arr_info==RECT_ARR, info->arr_info==JAG_ARR, info->arr_storage==STATIC, info->arr_storage==DYNAMIC, info->arr_storage==NONE, info->id);
+    printf("single %d prj %d%d%d sdn %d%d%d id %s ", 0, info->arr_info==PRIMITIVE, info->arr_info==RECT_ARR, info->arr_info==JAG_ARR, info->arr_storage==STATIC, info->arr_storage==DYNAMIC, info->arr_storage==NONE, info->id);
+    if(info->arr_info==PRIMITIVE) printf("irb %d%d%d\n", info->type.prim_info == INTEGER, info->type.prim_info == REAL, info->type.prim_info == BOOLEAN);
+    if(info->arr_info==RECT_ARR) printf("irb %d%d%d\n", info->type.rect_arr_info.betype == INTEGER, info->type.rect_arr_info.betype == REAL, info->type.rect_arr_info.betype == BOOLEAN);
+    if(info->arr_info==JAG_ARR) printf("irb %d%d%d\n", info->type.jagged_arr_info.betype == INTEGER, info->type.jagged_arr_info.betype == REAL, info->type.jagged_arr_info.betype == BOOLEAN);
     put_link(table, info);
     if(node->num_children > 1) add_info(node->children[1], copy_link(info), table);
 }
@@ -25,6 +28,7 @@ link * run_primitive(parseTree * node) {
     link * info = (link *) malloc(sizeof(link));
     info->arr_info = PRIMITIVE;
     info->arr_storage = NONE;
+    // printf("Is Bool %d\n", node->children[0]->term.type.tok.token == KEY_BOOL);
     if(node->children[0]->term.type.tok.token == KEY_INT) info->type.prim_info = INTEGER;
     else if(node->children[0]->term.type.tok.token == KEY_BOOL) info->type.prim_info = BOOLEAN;
     else if(node->children[0]->term.type.tok.token == KEY_REAL) info->type.prim_info = REAL;
@@ -59,16 +63,28 @@ link * run_jagged(parseTree * dec, parseTree * init) {
     info->type.jagged_arr_info.range_R2 = (rng_R2 *) malloc(range_1 * sizeof(rng_R2));
     
     if(dim2) {
+        int line_num;
         for(int i = 0; i < range_1; i++) {
             info->type.jagged_arr_info.range_R2[i].num_dim = 1;
             info->type.jagged_arr_info.range_R2[i].dims = (int *) malloc(sizeof(int));
         }
         int count = 0;
-        while(count < range_1 && init->children[0]->term.is_term == 0 && init->children[0]->term.type.nt == JAGGED2_SINGLE_INIT) {
+        while(count < range_1) {
+            line_num = init->children[0]->children[0]->term.type.tok.line_num;
             info->type.jagged_arr_info.range_R2[count++].dims[0] = atoi(init->children[0]->children[6]->term.type.tok.lexeme);
-            if(init->num_children > 1) init = init->children[1];
-            else break;
+            if(init->num_children == 1 || init->children[1]->num_children > 1 && count == range_1-1) {
+                char buf[25];
+                get_str(init->children[0]->term.type, buf, init->children[0]->term.is_term);
+                printf("%s\n", buf);
+                printf("Error - Line %d - R1 Size mismatch %d\n", line_num+1, init->children[0]->term.type.tok.token==INT);
+                return NULL;
+            }
+            if(count == range_1 && init->num_children > 1) {
+                printf("Huh?\n");
+            }
+            init = init->children[1];
         }
+        printf("%d %d\n", count, init->num_children);
         if(count < range_1 || init->num_children > 1) {
             printf("Error - Line %d - Size mismatch\n", init->children[0]->children[6]->term.type.tok.line_num);
             return NULL;
@@ -187,7 +203,10 @@ void traverseDeclares(parseTree * tree, typeExpressionTable * table) {
     link * info = get_type(tree, single, table);
     if(info == NULL) return;
     if(single) {
-        printf("single %d prj %d%d%d sdn %d%d%d id %s\n", 1, info->arr_info==PRIMITIVE, info->arr_info==RECT_ARR, info->arr_info==JAG_ARR, info->arr_storage==STATIC, info->arr_storage==DYNAMIC, info->arr_storage==NONE, tree->children[1]->term.type.tok.lexeme);
+        printf("single %d prj %d%d%d sdn %d%d%d id %s ", 1, info->arr_info==PRIMITIVE, info->arr_info==RECT_ARR, info->arr_info==JAG_ARR, info->arr_storage==STATIC, info->arr_storage==DYNAMIC, info->arr_storage==NONE, tree->children[1]->term.type.tok.lexeme);
+        if(info->arr_info==PRIMITIVE) printf("irb %d%d%d\n", info->type.prim_info == INTEGER, info->type.prim_info == REAL, info->type.prim_info == BOOLEAN);
+        if(info->arr_info==RECT_ARR) printf("irb %d%d%d\n", info->type.rect_arr_info.betype == INTEGER, info->type.rect_arr_info.betype == REAL, info->type.rect_arr_info.betype == BOOLEAN);
+        if(info->arr_info==JAG_ARR) printf("irb %d%d%d\n", info->type.jagged_arr_info.betype == INTEGER, info->type.jagged_arr_info.betype == REAL, info->type.jagged_arr_info.betype == BOOLEAN);
         strcpy(info->id, tree->children[1]->term.type.tok.lexeme);
         put_link(table, info);
     }
