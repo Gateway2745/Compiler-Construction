@@ -205,7 +205,7 @@ int is_op_comaptible(link l1,link l2,char* err)
         {
             if(l1.type.prim_info!=l2.type.prim_info)
             {
-                snprintf(err, 200, "PRIMITIVE TYPES %s and %s DON'T MATCH!!", l1.type.prim_info, l2.type.prim_info);
+                snprintf(err, 200, "PRIMITIVE TYPES DON'T MATCH!!");
                 return 0;
             }
             return 1;
@@ -264,15 +264,23 @@ int is_op_comaptible(link l1,link l2,char* err)
                 return 0;
             }
 
-            Int_Pair* v1 = r1.range_R2;
-            Int_Pair* v2 = r2.range_R2;
+            rng_R2* v1 = r1.range_R2;
+            rng_R2* v2 = r2.range_R2;
 
-            for(int i=0;i<r1.num_dim;i++)
+            for(int i=0;i<r1.range_R1.r2-r1.range_R1.r1 + 1;i++)
             {
-                if(v1[i].r2 - v1[i].r1 != v2[i].r2 - v2[i].r1)
+                if(v1[i].num_dim != v2[i].num_dim) 
                 {
                     snprintf(err, 200, "ARRAYS MUST HAVE SAME DIMENSION FOR ARITHMETIC!!");
                     return 0;
+                }
+                for(int j=0;j<v1[i].num_dim;j++)
+                {
+                    if(v1[i].dims[j] != v2[i].dims[j])
+                    {
+                        snprintf(err, 200, "ARRAYS MUST HAVE SAME DIMENSION FOR ARITHMETIC!!");
+                        return 0;
+                    }
                 }
             }
             return 1;
@@ -321,7 +329,7 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table)
             dims[curr_idx++] = atoi(tmp->term.type.tok.lexeme);
 
         }
-        realloc(dims,curr_idx);
+        dims = realloc(dims,curr_idx);
 
         if(l1.arr_info==RECT_ARR)
         {
@@ -462,6 +470,6 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table) {
 
 
 void traverseParseTree(parseTree *t, typeExpressionTable *Table) {
-    traverseDeclares(t, Table);
+    //traverseDeclares(t, Table);
     traverseAssigns(t, Table);
 }
