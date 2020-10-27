@@ -30,8 +30,10 @@ void free_children(parseTree * t) {
 	free(t->children);
 }
 
-int apply(Grammar * g, parseTree * t, tokenStream * s, Term * rule) {
+int apply(Grammar * g, parseTree * t, tokenStream ** stream, Term * rule) {
+	printf("In apply\n");
 
+	tokenStream * s = *stream;
 	char buffer[25];
 	get_str(t->term.type, buffer, t->term.is_term);
 	printf("Applying rule %d %s:\n", t->term.is_term, buffer);
@@ -64,12 +66,12 @@ int apply(Grammar * g, parseTree * t, tokenStream * s, Term * rule) {
 		if(is_term) {
 			error = (type.tok.token != s->token);
 			if(error) return -1;
-			t->num_children = 0;
-			t->children = NULL;
-			t->term.is_term = 1;
-			t->term.type.tok.token = s->token;
-			t->term.type.tok.line_num = s->line_num;
-			strcpy(t->term.type.tok.lexeme, s->lexeme);
+			t->children[i]->num_children = 0;
+			t->children[i]->children = NULL;
+			t->children[i]->term.is_term = 1;
+			t->children[i]->term.type.tok.token = s->token;
+			t->children[i]->term.type.tok.line_num = s->line_num;
+			strcpy(t->children[i]->term.type.tok.lexeme, s->lexeme);
 			s = s->next;
 			continue;
 		}
@@ -79,12 +81,18 @@ int apply(Grammar * g, parseTree * t, tokenStream * s, Term * rule) {
 		int num_rules;
 		Term ** rules = get_rules(g, type, &num_rules);
 		for(int j = 0; j < num_rules; j++) {
-			error = apply(g, t->children[i], s, rules[j]);
+			printf("I is %d, %p\n", i, t->children[i]);
+			t->children[i]->term.is_term = 0;
+			t->children[i]->term.type = type;
+			printf("Sublooping %d\n", j);
+			error = apply(g, t->children[i], &s, rules[j]);
+			printf("Sublooping %d\n", j);
 			if(!error) break;
 			free_children(t);
 		}
 		if(error) return -1;
 	}
+	*stream = s;
 	return 0;
 }
 
@@ -107,7 +115,7 @@ void createParseTree(parseTree *t, tokenStream *s, Grammar g) {
 	int num_rules;
 	Term ** rules = get_rules(&g, starter->type, &num_rules);
 
-	int error = apply(&g, t, s, rules[0]);
+	int error = apply(&g, t, &s, rules[0]);
 	if(error) {
 		printf("Failed to build parse tree\n");
 		exit(1);
