@@ -1,24 +1,19 @@
 #include "parser.h"
 
 int get_length(Term * rule) {
-	if(rule->next) return 1 + get_length(rule->next);
-	return 1;
+	if(!rule) return 0;
+	return 1 + get_length(rule->next);
 }
 
-void reverse_dump(stack ** st, Term * rule) {
-	stack * s = *st;
+stackNode * reverse_dump(Term * rule) {
+	if(!rule) return NULL;
 
-	if(!rule) return;
-
-	if(s->head == NULL) s->head = (stackNode *) malloc(sizeof(stackNode));
-	stackNode * node = s->head;
-	while(node && node->next) node = node->next;
-
-	node->next = NULL;
+	stackNode * node = (stackNode *) malloc(sizeof(stackNode));
+	node->next = reverse_dump(rule->next);
 	node->is_term = rule->is_term;
 	node->type = rule->type;
 
-	reverse_dump(st, rule->next);
+	return node;
 }
 
 void print_rule_local(Term * rule) {
@@ -44,16 +39,27 @@ int apply(Grammar * g, parseTree * t, tokenStream * s, Term * rule) {
 	printf("\n");
 
 	stack * local_stack = (stack *) malloc(sizeof(stack));
-	reverse_dump(&local_stack, rule);
+	local_stack->head = reverse_dump(rule);
+	stackNode * mover = local_stack->head;
+
 	int length = get_length(rule);
+	local_stack->size = length;
 	t->num_children = length;
 	t->children = (parseTree **) malloc(length * sizeof(parseTree *));
+	for(int i = 0; i < length; i++) t->children[i] = (parseTree *) malloc(sizeof(parseTree));
+
+	printf("Reverse dump complete\n");
 	
 	for(int i = 0; i < length; i++) {
-		t->children[i] = (parseTree *) malloc(sizeof(parseTree));
-		int is_term = local_stack->head->is_term;
-		TermType type = pop(local_stack)->type;
+
+		stackNode * temp = pop(local_stack);
+		// if(temp == NULL) printf("Underflow\n");		// Should not occur
+		int is_term = temp->is_term;
+		TermType type = temp->type;
 		int error = 1;
+
+		get_str(type, buffer, is_term);
+		printf("%s\n", buffer);
 
 		if(is_term) {
 			error = (type.tok.token != s->token);
@@ -61,10 +67,14 @@ int apply(Grammar * g, parseTree * t, tokenStream * s, Term * rule) {
 			t->num_children = 0;
 			t->children = NULL;
 			t->term.is_term = 1;
-			t->term.type.tok.token = type.tok.token;
-			t->term.type.tok.line_num = type.tok.line_num;
-			strcpy(t->term.type.tok.lexeme, type.tok.lexeme);
+			t->term.type.tok.token = s->token;
+			t->term.type.tok.line_num = s->line_num;
+			strcpy(t->term.type.tok.lexeme, s->lexeme);
+			s = s->next;
+			continue;
 		}
+
+		printf("All good\n");
 
 		int num_rules;
 		Term ** rules = get_rules(g, type, &num_rules);
