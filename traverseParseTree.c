@@ -193,7 +193,10 @@ void traverseDeclares(parseTree * tree, typeExpressionTable * table) {
     else add_info(tree->children[4], info, table);
 }
 
-link get_data_type_left(parseTree * tree, typeExpressionTable * table)
+
+/****      ASSIGNMENT TRAVERSAL   ********/
+
+link get_data_type_left(parseTree * tree, typeExpressionTable * table) // get type expression of variable left of assignment statement
 {
     if(tree->num_children==0)
     {
@@ -213,7 +216,7 @@ link get_data_type_left(parseTree * tree, typeExpressionTable * table)
 }
 
 
-int is_arithmetic_comaptible(link l1,link l2,char* err)
+int is_op_comaptible(link l1,link l2,char* err)
 {
     if(l1.arr_info==l2.arr_info)
     {
@@ -297,7 +300,7 @@ int is_arithmetic_comaptible(link l1,link l2,char* err)
     return 0;
 }
 
-link get_data_type_right_arithmetic(parseTree * tree, typeExpressionTable * table)
+link get_data_type_right(parseTree * tree, typeExpressionTable * table) // gets data type to right of assignment statement
 {
     if(tree->num_children==0)
     {
@@ -316,14 +319,14 @@ link get_data_type_right_arithmetic(parseTree * tree, typeExpressionTable * tabl
     link d_left;
     link d_right;
 
-    d_left = get_data_type_right_arithmetic(tree->children[0],table);
+    d_left = get_data_type_right(tree->children[0],table);
 
     if(tree->num_children==3)
     {
         char err_msg[200];
         int success;
-        d_right = get_data_type_right_arithmetic(tree->children[2],table);
-        success = is_arithmetic_comaptible(d_left,d_right,err_msg);
+        d_right = get_data_type_right(tree->children[2],table);
+        success = is_op_comaptible(d_left,d_right,err_msg);
 
         if(!success)
         {
@@ -334,14 +337,7 @@ link get_data_type_right_arithmetic(parseTree * tree, typeExpressionTable * tabl
     }
     
     tree->type_info = d_left; // check this...assigns internal node of parse tree the same link as its left child( only same type expression is important here)
-
-}
-
-
-//TO-DO
-link get_data_type_right_boolean(parseTree * tree, typeExpressionTable * table)
-{
-    
+    return tree->type_info;
 }
 
 void traverseAssigns(parseTree * tree, typeExpressionTable * table) {
@@ -351,12 +347,14 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table) {
     }
     
     link type_left = get_data_type_left(tree->children[0],table);
-    link type_right;
+    link type_right = get_data_type_right(tree->children[2],table); 
 
-    int is_arithmetic = tree->children[2]->children[0]->term.type.nt == ARITHMETIC_EXP;
-
-    if(is_arithmetic) type_right = get_data_type_right_arithmetic(tree->children[2],table); 
-    else type_right = get_data_type_right_boolean(tree->children[2],table);
+    char err_msg[200];
+    if(!is_op_comaptible(type_left,type_right,err_msg))
+    {
+        printf("%s\n LINE-NUMBER %d\n", err_msg,tree->term.type.tok.line_num);
+        exit(0);
+    }
 }
 
 
