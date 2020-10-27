@@ -1,4 +1,4 @@
-#include parser.h
+#include "parser.h"
 
 
 
@@ -14,6 +14,7 @@ if(topstack->is_term ==1) {
 } return; 	// readterm does (topstack->tok == tok_stream->[0] )? 1:0 //pop from stack if success, else not
 stackNode top_stack = peek(stack);
 Term** rules = get_rules(G, top_stack->nonterm, &size);
+for(Term * rule = NULL, *rule =  )
 For rule in range size {
 Push rule on temp_stack
 Cursor * Temp_current_stream_token = *current_token_stream
