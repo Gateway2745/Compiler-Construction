@@ -11,7 +11,7 @@ link * copy_link(link * source) {
 
 void add_info(parseTree * node, link * info, typeExpressionTable * table) {
     strcpy(info->id, node->children[0]->term.type.tok.lexeme);
-    printf("Adding info islistvar - %d going for %s\n", node->term.type.nt == LISTVAR, node->children[0]->term.type.tok.lexeme);
+    //printf("Adding info islistvar - %d going for %s\n", node->term.type.nt == LISTVAR, node->children[0]->term.type.tok.lexeme);
     put_link(table, info);
     if(node->num_children > 1) add_info(node->children[1], copy_link(info), table);
 }
@@ -190,7 +190,7 @@ void traverseDeclares(parseTree * tree, typeExpressionTable * table) {
 
     link * info = get_type(tree, single, table);
     if(single) {
-        printf("Case single %d is prim %d going for %s\n", single, info->arr_info==PRIMITIVE, tree->children[1]->term.type.tok.lexeme);
+        //printf("Case single %d is prim %d going for %s\n", single, info->arr_info==PRIMITIVE, tree->children[1]->term.type.tok.lexeme);
         strcpy(info->id, tree->children[1]->term.type.tok.lexeme);
         put_link(table, info);
     }
@@ -413,12 +413,22 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table)
 
 link get_data_type_right(parseTree * tree, typeExpressionTable * table) // gets data type to right of assignment statement
 {
-
     if(tree->term.type.nt==VAR) return get_data_type_var(tree, table);
 
     if(tree->num_children==0) // needed for <INT> tokens
     {
         char* lexeme = tree->term.type.tok.lexeme;
+        Token tk = tree->term.type.tok.token;
+        if(tk==INT)
+        {
+            type_exp te = {INTEGER};
+            link l;
+            l.arr_info = PRIMITIVE;
+            l.arr_storage = STATIC;
+            l.type = te;
+            tree->type_info = l;
+            return l;
+        }
         int line_number = tree->term.type.tok.line_num;
         link* l = get_link(table,lexeme);
         if(!l)
@@ -444,7 +454,7 @@ link get_data_type_right(parseTree * tree, typeExpressionTable * table) // gets 
 
         if(!success)
         {
-            printf("%s\n LINE-NUMBER %d\n", err_msg,tree->term.type.tok.line_num);
+            printf("%s\n LINE-NUMBER %d\n", err_msg,tree->children[0]->term.type.tok.line_num);
             exit(0);
         }
 

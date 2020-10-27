@@ -20,17 +20,17 @@ void print_rule_local(Term * rule) {
 	if(!rule) return;
 	char buf[25];
 	get_str(rule->type, buf, rule->is_term);
-	printf("%s (is_term %d) ", buf, rule->is_term);
+	//printf("%s (is_term %d) ", buf, rule->is_term);
 	print_rule_local(rule->next);
 }
 
 void free_children(parseTree * t) {
-	printf("Freeing %p\n", t);
+	//printf("Freeing %p\n", t);
 	if(t == NULL || t->children == NULL) return;
 	for(int i = 0; i < t->num_children; i++) free_children(t->children[i]);
 	for(int i = 0; i < t->num_children; i++) free(t->children[i]);
 	free(t->children);
-	printf("Iter complete\n");
+	//printf("Iter complete\n");
 }
 
 int apply(Grammar * g, parseTree * t, tokenStream ** stream, Term * rule) {
@@ -104,7 +104,7 @@ int apply(Grammar * g, parseTree * t, tokenStream ** stream, Term * rule) {
 void createParseTree(parseTree *t, tokenStream *s, Grammar g) {
 
 	if(!t) {
-		printf("Provide proper tree starter\n");
+	//	printf("Provide proper tree starter\n");
 		return;
 	}
 
@@ -122,8 +122,8 @@ void createParseTree(parseTree *t, tokenStream *s, Grammar g) {
 
 	int error = apply(&g, t, &s, rules[0]);
 	if(error) {
-		printf("Failed to build parse tree\n");
+	//	printf("Failed to build parse tree\n");
 		exit(1);
 	}
-	printf("Successfully built parse tree\n");
+	//printf("Successfully built parse tree\n");
 }
