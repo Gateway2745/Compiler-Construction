@@ -46,7 +46,7 @@
 <jagged3_init> <jagged3_single_init> <jagged3_init>
 <jagged3_init> <jagged3_single_init> 
 
-<assgn_stmt> <var> <ASSGN> <expression>
+<assgn_stmt> <var> <ASSGN> <expression> <SEMCOL>
 <array_sel> <index> <array_sel>
 <array_sel> <index> 
 <array_idx> <SQO> <array_sel> <SQC> 
@@ -74,7 +74,7 @@
 
 <boolean_exp> <l_and_term> <OP_OR> <l_or_term>
 <boolean_exp> <var> <OP_AND> <l_and_term>
-<l_or_term> <l_or_term> <OP_OR> <l_and_term>
+<l_or_term> <OP_OR> <l_and_term> <l_or_term>
 <l_or_term> <l_and_term>
 <l_and_term> <var> <OP_AND> <l_and_term>
 <l_and_term> <var>
