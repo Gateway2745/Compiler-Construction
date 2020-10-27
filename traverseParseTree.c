@@ -1,4 +1,5 @@
 #include "parser.h"
+#include <assert.h>
 
 link * copy_link(link * source) {
     link * new = (link *) malloc(sizeof(link));
@@ -196,26 +197,6 @@ void traverseDeclares(parseTree * tree, typeExpressionTable * table) {
 
 /****      ASSIGNMENT TRAVERSAL   ********/
 
-link get_data_type_left(parseTree * tree, typeExpressionTable * table) // get type expression of variable left of assignment statement
-{
-    if(tree->num_children==0)
-    {
-        char* lexeme = tree->term.type.tok.lexeme;
-        int line_number = tree->term.type.tok.line_num;
-        link* l = get_link(table,lexeme);
-        if(!l)
-        {
-            printf("Variable %s Not Declared \n Line Number - %d \n Exiting!!", lexeme, line_number);
-            exit(0);      // exiting program
-        }
-        tree->type_info = *l;
-        return *l;
-    }
-    tree->type_info = get_data_type_left(tree->children[0], table); // assign same link to all nodes on left subtree (left-subtree of assgn is linear chain) 
-    return tree->type_info;
-}
-
-
 int is_op_comaptible(link l1,link l2,char* err)
 {
     if(l1.arr_info==l2.arr_info)
@@ -300,9 +281,131 @@ int is_op_comaptible(link l1,link l2,char* err)
     return 0;
 }
 
+link get_data_type_of_id(parseTree * tree, typeExpressionTable * table) // tree points to parse tree node with token '<ID>'
+{
+    char* lexeme = tree->term.type.tok.lexeme;
+    int line_number = tree->term.type.tok.line_num;
+    link* l = get_link(table,lexeme);
+    if(!l)
+    {
+        printf("Variable %s Not Declared \n Line Number - %d \n Exiting!!", lexeme, line_number);
+        exit(0);      // exiting program
+    }
+    tree->type_info = *l;
+    return *l;
+}
+
+link get_data_type_var(parseTree * tree, typeExpressionTable * table)
+{
+    link l1 = get_data_type_of_id(tree->children[0],table);
+
+    if(tree->num_children==2)
+    {
+        parseTree *r = tree->children[1];   // 'r' is pointing to parse tree node whose token is '<array_idx>'
+        int curr_idx=0;
+        int size=1;
+        int* dims = malloc(1 * sizeof(int));
+        for(int i=1;i<r->num_children-1;i++) // skip '[' and ']' of array index
+        {
+            parseTree* tmp = r->children[i]->children[0]->children[0];   // in our grammar '<array_sel>' has only one child '<index>' which can either be '<var>' or '<int'>
+            if(tmp->term.type.tok.token==ID)
+            {
+                printf("ARRAY DIMENSIONS MUST BE FULLY SPECIFIED FOR ARITHMETIC\n");
+                exit(0);
+            }
+
+            assert(tmp->term.type.tok.token == INT);
+
+            if(curr_idx+1>size) dims = realloc(dims, size*=2);
+            
+            dims[curr_idx++] = atoi(tmp->term.type.tok.lexeme);
+
+        }
+        realloc(dims,curr_idx);
+
+        if(l1.arr_info==RECT_ARR)
+        {
+            Var_Pair* found_dims = l1.type.rect_arr_info.dim_range;    // this and next 2 values obtained from type expression of variable
+            int found_num_dims = l1.type.rect_arr_info.num_dim;
+
+            if(curr_idx != found_num_dims)
+            {
+                printf("NUMBER OF ARRAY DIMENSIONS DO NOT MATCH !!\n");
+                exit(0);
+            }
+
+            for(int i=0;i<curr_idx;i++)
+            {
+                if(found_dims[i].is_r1_static==0 || found_dims[i].is_r2_static==0) 
+                {
+                    printf("ARRAY VARIABLE DIMENSION DECLARED DYNAMIC SO UNABLE TO CHECK!!");
+                    exit(0);
+                }
+                if(!(dims[i]>=found_dims[i].r1.r_s || dims[i] <= found_dims[i].r2.r_s))
+                {
+                    printf("ARRAY BOUNDS OUT OF RANGE!!");
+                    exit(0);
+                }
+            }
+        }
+
+        if(l1.arr_info==JAG_ARR)
+        {
+            Int_Pair found_dims_R1 = l1.type.jagged_arr_info.range_R1;    // this and next 3 values obtained from type expression of variable
+            rng_R2* found_dims_R2 = l1.type.jagged_arr_info.range_R2; 
+            int found_num_dims = l1.type.jagged_arr_info.num_dim;
+
+            if(curr_idx != found_num_dims)
+            {
+                printf("NUMBER OF ARRAY DIMENSIONS DO NOT MATCH !!\n");
+                exit(0);
+            }
+
+            if(!(dims[0]>=found_dims_R1.r1 || dims[0] <= found_dims_R1.r2)) 
+            {
+                printf("ARRAY R1 DIMENSIONS OUT OF BOUND!!");
+                exit(0);
+            }
+
+            if(curr_idx==2)  // if jagged array has dimension 2
+            {
+                    int a = dims[1]>=found_dims_R2[0].dims[0] && dims[1] <= found_dims_R2[1].dims[0];
+                    if (!a)
+                    {
+                        printf("ARRAY R2 DIMENSIONS OUT OF BOUND!!");
+                        exit(0);
+                    }
+            }
+            
+
+            if(curr_idx==3)  // if jagged array has dimension 3
+            {
+                int id1 = dims[0] - found_dims_R1.r1;
+                rng_R2 req = found_dims_R2[id1];
+                if(dims[1]>=req.num_dim || dims[1]<0)
+                {
+                    printf("ARRAY 2ND DIMENSION OUT OF BOUNDS!!\n");
+                    exit(0);
+                }
+                if(dims[2]>=req.dims[dims[1]] || dims[2]<0)
+                {
+                    printf("ARRAY 3RD DIMENSION OUT OF BOUNDS!!\n");
+                    exit(0);
+                }
+            }
+
+        }
+    }
+    return l1;
+}
+
+
 link get_data_type_right(parseTree * tree, typeExpressionTable * table) // gets data type to right of assignment statement
 {
-    if(tree->num_children==0)
+
+    if(tree->term.type.nt==VAR) return get_data_type_var(tree, table);
+
+    if(tree->num_children==0) // needed for <INT> tokens
     {
         char* lexeme = tree->term.type.tok.lexeme;
         int line_number = tree->term.type.tok.line_num;
@@ -310,7 +413,7 @@ link get_data_type_right(parseTree * tree, typeExpressionTable * table) // gets 
         if(!l)
         {
             printf("Variable %s Not Declared \n Line Number - %d \n Exiting!!", lexeme, line_number);
-            exit(0);      // exiting program
+            exit(0);      
         }
         tree->type_info = *l;
         return *l;
@@ -346,7 +449,7 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table) {
         return;
     }
     
-    link type_left = get_data_type_left(tree->children[0],table);
+    link type_left = get_data_type_var(tree->children[0], table);
     link type_right = get_data_type_right(tree->children[2],table); 
 
     char err_msg[200];
