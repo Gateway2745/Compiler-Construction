@@ -58,23 +58,23 @@
 <expression> <var> 
 <expression> <INT>
 
-<arithmetic_exp> <additive_term> <OP_PLUS> <term> 
-<arithmetic_exp> <additive_term> <OP_MINUS> <term> 
-<arithmetic_exp> <term> <OP_STAR> <factor> 
-<arithmetic_exp> <term> <OP_SLASH> <factor>
-<additive_term> <additive_term> <OP_PLUS> <term>
-<additive_term> <additive_term> <OP_MINUS> <term>
-<additive_term> <term>
+<arithmetic_exp> <term> <OP_PLUS> <additive_term>
+<arithmetic_exp> <term> <OP_MINUS> <additive_term>
+<arithmetic_exp> <factor> <OP_STAR> <term>
+<arithmetic_exp> <factor> <OP_SLASH> <term>
 
-<term> <term> <OP_STAR> <factor> 
-<term> <term> <OP_SLASH> <factor> 
+<additive_term> <term> <OP_PLUS> <additive_term>
+<additive_term> <term> <OP_MINUS> <additive_term>
+<additive_term> <term>
+<term> <factor> <OP_STAR> <term>
+<term> <factor> <OP_SLASH> <term>
 <term> <factor>
 <factor> <INT> 
 <factor> <var>
 
-<boolean_exp> <l_or_term> <OP_OR> <l_and_term> 
-<boolean_exp> <l_and_term> <OP_AND> <var>
-<l_or_term> <l_or_term> <OP_OR> <l_and_term> 
+<boolean_exp> <l_and_term> <OP_OR> <l_or_term>
+<boolean_exp> <var> <OP_AND> <l_and_term>
+<l_or_term> <l_or_term> <OP_OR> <l_and_term>
 <l_or_term> <l_and_term>
-<l_and_term> <l_and_term> <OP_AND> <var> 
+<l_and_term> <var> <OP_AND> <l_and_term>
 <l_and_term> <var>

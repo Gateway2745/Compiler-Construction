@@ -68,6 +68,7 @@ int apply(Grammar * g, parseTree * t, tokenStream ** stream, Term * rule) {
 
 		if(is_term) {
 			error = (type.tok.token != s->token);
+			printf("In again error %s\n", s->lexeme);
 			if(error) return -1;
 			t->children[i]->num_children = 0;
 			t->children[i]->children = NULL;
@@ -96,6 +97,7 @@ int apply(Grammar * g, parseTree * t, tokenStream ** stream, Term * rule) {
 		}
 		if(error) return -1;
 	}
+	printf("Leaving, success\n");
 	*stream = s;
 	return 0;
 }
