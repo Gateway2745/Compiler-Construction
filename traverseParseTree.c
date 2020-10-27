@@ -16,7 +16,7 @@ void add_info(parseTree * node, link * info, typeExpressionTable * table) {
 
 int get_length_idx(parseTree * idx) {
     if(idx->num_children == 1 && idx->children[0]->term.type.nt == EPSILON) return 0;
-    return 1 + get_length(idx->children[1]);
+    return 1 + get_length_idx(idx->children[1]);
 }
 
 link * run_primitive(parseTree * node) {

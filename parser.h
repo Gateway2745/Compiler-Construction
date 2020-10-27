@@ -72,28 +72,32 @@ typedef struct rng_R2{   // used in type expression of jagged array  (e.g (3,[ 5
     int* dims;
 } rng_R2;
 
+typedef enum primitive_info {
+    INTEGER, REAL, BOOLEAN
+} primitive_info;
+
 typedef struct rect_arr_te{ // type expression of rectangular array
-    enum basic_element_type {INTEGER} betype;  // only basic type allowed is integer
+    primitive_info betype;
     int num_dim;
     Var_Pair* dim_range;   
 } rect_arr_te;
 
 typedef struct jagged_arr_te{
-    enum basic_element_type {INTEGER} betype;  // only basic type allowed is integer
+    primitive_info betype;
     int num_dim;
     Int_Pair range_R1;
     rng_R2* range_R2;
 } jagged_arr_te;
 
 typedef union type_exp {
-    enum primitive_info {INTEGER, REAL, BOOLEAN} prim_info;
+    primitive_info prim_info;
     rect_arr_te rect_arr_info;
     jagged_arr_te jagged_arr_info;
 } type_exp;
 
 typedef struct link {
-    link * next;
-    link * prev;
+    struct link * next;
+    struct link * prev;
     char id[21];                                                // Field 1
     enum arr_info {PRIMITIVE, RECT_ARR, JAG_ARR} arr_info;      // Field 2
     enum arr_storage {STATIC, DYNAMIC, NONE} arr_storage;       // Field 3
