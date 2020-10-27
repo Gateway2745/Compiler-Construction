@@ -11,6 +11,7 @@ link * copy_link(link * source) {
 
 void add_info(parseTree * node, link * info, typeExpressionTable * table) {
     strcpy(info->id, node->children[0]->term.type.tok.lexeme);
+    printf("Adding info islistvar - %d going for %s\n", node->term.type.nt == LISTVAR, node->children[0]->term.type.tok.lexeme);
     put_link(table, info);
     if(node->num_children > 1) add_info(node->children[1], copy_link(info), table);
 }
@@ -179,6 +180,7 @@ link * get_type(parseTree * tree, int is_single, typeExpressionTable * table) {
 }
 
 void traverseDeclares(parseTree * tree, typeExpressionTable * table) {
+
     if(!(tree->term.is_term == 0 && tree->term.type.nt == DECL_STMT)) {
         for(int i = 0; i < tree->num_children; i++) traverseDeclares(tree->children[i], table);
         return;
@@ -188,6 +190,7 @@ void traverseDeclares(parseTree * tree, typeExpressionTable * table) {
 
     link * info = get_type(tree, single, table);
     if(single) {
+        printf("Case single %d is prim %d going for %s\n", single, info->arr_info==PRIMITIVE, tree->children[1]->term.type.tok.lexeme);
         strcpy(info->id, tree->children[1]->term.type.tok.lexeme);
         put_link(table, info);
     }
@@ -470,6 +473,6 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table) {
 
 
 void traverseParseTree(parseTree *t, typeExpressionTable *Table) {
-    //traverseDeclares(t, Table);
+    traverseDeclares(t, Table);
     traverseAssigns(t, Table);
 }

@@ -21,6 +21,7 @@ link * get_link(typeExpressionTable * t, char * str) {
 }
 
 void put_link(typeExpressionTable * t, link * l) {
+    if(!l) return;
     if(get_link(t, l->id)) {
         printf("Error - ID already used\n");
         return;
