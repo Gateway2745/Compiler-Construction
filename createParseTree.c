@@ -38,9 +38,9 @@ int apply(Grammar * g, parseTree * t, tokenStream ** stream, Term * rule) {
 	tokenStream * s = *stream;
 	char buffer[25];
 	get_str(t->term.type, buffer, t->term.is_term);
-	printf("Applying rule %d %s:\n", t->term.is_term, buffer);
-	print_rule_local(rule);
-	printf("\n");
+	// printf("Applying rule %d %s:\n", t->term.is_term, buffer);
+	// print_rule_local(rule);
+	// printf("\n");
 
 	stack * local_stack = (stack *) malloc(sizeof(stack));
 	local_stack->head = reverse_dump(rule);
@@ -55,18 +55,17 @@ int apply(Grammar * g, parseTree * t, tokenStream ** stream, Term * rule) {
 	for(int i = 0; i < length; i++) {
 
 		stackNode * temp = pop(local_stack);
-		printf("Looking at %s line %d\n", s->lexeme, s->line_num);
+		// printf("Looking at %s line %d\n", s->lexeme, s->line_num);
 		// if(temp == NULL) printf("Underflow\n");		// Should not occur
 		int is_term = temp->is_term;
 		TermType type = temp->type;
 		int error = 1;
 
-		get_str(type, buffer, is_term);
-		printf("%s\n", buffer);
+		// get_str(type, buffer, is_term);
+		// printf("%s\n", buffer);
 
 		if(is_term) {
 			error = (type.tok.token != s->token);
-			// printf("In again viewing %s\n", s->lexeme);
 			if(error) return -1;
 			t->children[i]->num_children = 0;
 			t->children[i]->children = NULL;
@@ -92,7 +91,7 @@ int apply(Grammar * g, parseTree * t, tokenStream ** stream, Term * rule) {
 			t->children[i]->term.is_term = 0;
 			t->children[i]->term.type = type;
 			error = apply(g, t->children[i], &s, rules[j]);
-			printf("Sublooping %d, error is %d\n", j, error);
+			// printf("Sublooping %d, error is %d\n", j, error);
 			if(!error) break;
 			// free_children(t->children[i]);
 		}

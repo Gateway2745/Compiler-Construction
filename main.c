@@ -30,7 +30,7 @@ void driver(char * filename) {
         }
 
         typeExpressionTable Table;
-        traverseParseTree(&Tree, &Table);
+        // traverseParseTree(&Tree, &Table);
 
         if(option == 2) {
             printf("Parse Tree traversed\n");

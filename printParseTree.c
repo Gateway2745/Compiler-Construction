@@ -77,38 +77,47 @@ void get_str(TermType t, char * buf, int is_term) {
 }
 
 void print_rule (parseTree * t) {
-    if(t->term.is_term) {
-        printf("Grammar - None");
-        return;
-    }
     char buf[25];
     get_str(t->term.type, buf, 0);
-    printf("Grammar - %s ->", buf);
+    printf("Grammar- %s ->", buf);
     for(int i = 0; i < t->num_children; i++) {
         get_str(t->children[i]->term.type, buf, t->children[i]->term.is_term);
         printf(" %s", buf);
     }
 }
 
+void print_type_info(parseTree * t) {
+    printf("Id (If appl)-%-20s\t", t->type_info.id);
+    char arr_type[5];
+    if(t->type_info.arr_info == PRIMITIVE) strcpy(arr_type, "PRIM");
+    if(t->type_info.arr_info == RECT_ARR) strcpy(arr_type, "RECT");
+    if(t->type_info.arr_info == JAG_ARR) strcpy(arr_type, "JAG");
+    printf("Arrtype (If appl)-%-4s\t", arr_type);
+    if(t->type_info.arr_storage == STATIC) strcpy(arr_type, "STAT");
+    if(t->type_info.arr_storage == DYNAMIC) strcpy(arr_type, "DYN");
+    if(t->type_info.arr_storage == NONE) strcpy(arr_type, "NONE");
+    printf("Arrstorage (If appl)-%-4s\t", arr_type);
+}
+
 void internalPrintParseTree(parseTree * t, int depth) {
-    while(t) {
-        char buf[25];
-        char * lexeme = (t->term.is_term) ? t->term.type.tok.lexeme : NULL;
-        int line_num = (t->term.is_term) ? t->term.type.tok.line_num : -1;
-        get_str(t->term.type, buf, t->term.is_term);
-        printf("Symbol - %25s", buf);
-        printf("Is_term - %d", t->term.is_term);
-        //type stuff
-        printf("Lexeme - %20s", lexeme);
-        printf("Line - %3d\n", line_num);
-        printf("Depth - %3d\n", depth);
-        if(t->term.is_term == 0) {
-            printf("Rule - ");
-            print_rule(t);
-        }
-        printf("\n");
-        for(int i = 0; i < t->num_children; i++)internalPrintParseTree(t->children[i], depth+1);
+
+    char buf[25];
+    int is_term = t->term.is_term;
+    char * lexeme = (t->term.is_term) ? t->term.type.tok.lexeme : NULL;
+    int line_num = (t->term.is_term) ? t->term.type.tok.line_num : -1;
+    get_str(t->term.type, buf, t->term.is_term);
+    printf("Depth-%3d\t", depth);
+    printf("Symbol-%-15s\t", buf);
+    printf("Is_term-%d\t", is_term);
+    print_type_info(t);
+    if(is_term) printf("Lexeme-%-20s\t", lexeme);
+    if(is_term) printf("Line-%3d\t", line_num);
+    else {
+        printf("Rule-");
+        print_rule(t);
     }
+    printf("\n");
+    for(int i = 0; i < t->num_children; i++) internalPrintParseTree(t->children[i], depth+1);
 }
 
 void printParseTree(parseTree * t) {
