@@ -11,7 +11,7 @@ link * copy_link(link * source) {
 
 void add_info(parseTree * node, link * info, typeExpressionTable * table) {
     strcpy(info->id, node->children[0]->term.type.tok.lexeme);
-    //printf("Adding info islistvar - %d going for %s\n", node->term.type.nt == LISTVAR, node->children[0]->term.type.tok.lexeme);
+    printf("single %d prj %d%d%d sdn %d%d%d id %s\n", 0, info->arr_info==PRIMITIVE, info->arr_info==RECT_ARR, info->arr_info==JAG_ARR, info->arr_storage==STATIC, info->arr_storage==DYNAMIC, info->arr_storage==NONE, info->id);
     put_link(table, info);
     if(node->num_children > 1) add_info(node->children[1], copy_link(info), table);
 }
@@ -91,18 +91,26 @@ link * run_jagged(parseTree * dec, parseTree * init) {
             }
             info->type.jagged_arr_info.range_R2[i].dims[j] = length;
             if(range->num_children < 3 && (j < num_dim - 1)) {
+                printf("Inner most shortage\n");
                 printf("Error - Line %d - Size mismatch\n", range->children[0]->children[0]->term.type.tok.line_num);
                 return NULL;
             }
+            else if(range->num_children == 3) range = range->children[2];
         }
         if(init->num_children < 2 && (i < range_1 - 1) || range->num_children > 1) {
+            printf("Middle Left over %d Broken short %d\n", range->num_children > 1, init->num_children < 2 && (i < range_1 - 1));
+            char buf[25];
+            get_str(range->children[1]->term.type, buf, range->children[1]->term.is_term);
+            printf("Stuff %s\n", buf);
+            get_str(range->children[0]->children[0]->term.type, buf, range->children[0]->children[0]->term.is_term);
+            printf("from %s\n", range->children[0]->children[0]->term.type.tok.lexeme);
             printf("Error - Line %d - Size mismatch\n", init->children[0]->children[6]->term.type.tok.line_num);
             return NULL;
         }
         init = init->children[1];
     }
     if(init->num_children > 1) {
-        printf("Error - Line %d - Size mismatch\n", init->children[0]->children[6]->term.type.tok.line_num);
+        printf("Outer excess Error - Line %d - Size mismatch\n", init->children[0]->children[6]->term.type.tok.line_num);
         return NULL;
     }
     return info;
@@ -189,8 +197,9 @@ void traverseDeclares(parseTree * tree, typeExpressionTable * table) {
     tree = tree->children[0];
 
     link * info = get_type(tree, single, table);
+    if(info == NULL) return;
     if(single) {
-        //printf("Case single %d is prim %d going for %s\n", single, info->arr_info==PRIMITIVE, tree->children[1]->term.type.tok.lexeme);
+        printf("single %d prj %d%d%d sdn %d%d%d id %s\n", 1, info->arr_info==PRIMITIVE, info->arr_info==RECT_ARR, info->arr_info==JAG_ARR, info->arr_storage==STATIC, info->arr_storage==DYNAMIC, info->arr_storage==NONE, tree->children[1]->term.type.tok.lexeme);
         strcpy(info->id, tree->children[1]->term.type.tok.lexeme);
         put_link(table, info);
     }
