@@ -41,7 +41,6 @@ link * run_jagged(parseTree * dec, parseTree * init) {
     info->type.jagged_arr_info.betype = INTEGER;
     info->type.jagged_arr_info.num_dim = (dec->term.type.nt == JAGGED2_DEC) ? 2 : 3;
     int dim2 = (info->type.jagged_arr_info.num_dim == 2);
-    int x, y;
     parseTree * x_node = dec->children[3]->children[0]->children[0];
     parseTree * y_node = dec->children[3]->children[2]->children[0];
 
@@ -90,28 +89,17 @@ link * run_jagged(parseTree * dec, parseTree * init) {
                 return NULL;
             }
             info->type.jagged_arr_info.range_R2[i].dims[j] = length;
-            if(range->num_children < 3 && (j < num_dim - 1)) {
-                printf("Inner most shortage\n");
-                printf("Error - Line %d - Size mismatch\n", range->children[0]->children[0]->term.type.tok.line_num);
+            if(range->num_children < 3 && (j < num_dim - 1) || range->num_children == 3 && (j == num_dim - 1)) {
+                printf("Error - Line %d - R2 Size mismatch\n", range->children[0]->children[0]->term.type.tok.line_num);
                 return NULL;
             }
-            else if(range->num_children == 3) range = range->children[2];
+            else if(j < num_dim-1) range = range->children[2];
         }
-        if(init->num_children < 2 && (i < range_1 - 1) || range->num_children > 1) {
-            printf("Middle Left over %d Broken short %d\n", range->num_children > 1, init->num_children < 2 && (i < range_1 - 1));
-            char buf[25];
-            get_str(range->children[1]->term.type, buf, range->children[1]->term.is_term);
-            printf("Stuff %s\n", buf);
-            get_str(range->children[0]->children[0]->term.type, buf, range->children[0]->children[0]->term.is_term);
-            printf("from %s\n", range->children[0]->children[0]->term.type.tok.lexeme);
-            printf("Error - Line %d - Size mismatch\n", init->children[0]->children[6]->term.type.tok.line_num);
+        if(init->num_children < 2 && (i < range_1 - 1) || init->num_children == 2 && (i == range_1 - 1)) {
+            printf("Error - Line %d - R1 Size mismatch\n", init->children[0]->children[6]->term.type.tok.line_num);
             return NULL;
         }
-        init = init->children[1];
-    }
-    if(init->num_children > 1) {
-        printf("Outer excess Error - Line %d - Size mismatch\n", init->children[0]->children[6]->term.type.tok.line_num);
-        return NULL;
+        if(i < range_1 - 1) init = init->children[1];
     }
     return info;
 }

@@ -20,7 +20,7 @@ void print_rule_local(Term * rule) {
 	if(!rule) return;
 	char buf[25];
 	get_str(rule->type, buf, rule->is_term);
-	//printf("%s (is_term %d) ", buf, rule->is_term);
+	printf("%s (is_term %d) ", buf, rule->is_term);
 	print_rule_local(rule->next);
 }
 
@@ -104,7 +104,7 @@ int apply(Grammar * g, parseTree * t, tokenStream ** stream, Term * rule) {
 void createParseTree(parseTree *t, tokenStream *s, Grammar g) {
 
 	if(!t) {
-	//	printf("Provide proper tree starter\n");
+		// printf("Provide proper tree starter\n");
 		return;
 	}
 
@@ -122,8 +122,8 @@ void createParseTree(parseTree *t, tokenStream *s, Grammar g) {
 
 	int error = apply(&g, t, &s, rules[0]);
 	if(error) {
-	//	printf("Failed to build parse tree\n");
+		printf("Failed to build parse tree\n");
 		exit(1);
 	}
-	//printf("Successfully built parse tree\n");
+	printf("Successfully built parse tree\n");
 }
