@@ -2,6 +2,17 @@
 
 
 
+void tree_destroy(parseTree *root)  {
+    if (num_children==0) {return;}
+    for(int i = 0; i < root->num_children; i++){
+    	tree_destroy(root->children[i]);
+    	root->children[i] = NULL; //freeing the pointer of children to point to null
+    }
+	free(root);      
+}
+
+
+
 
 
 int try(cursor ** current_token_stream, tree, stack) {
@@ -32,7 +43,7 @@ for(Term * rule = NULL, *rule =  ){ //help pls
 		*Current_token_stream = temp_current_stream_token;
 		break;
 	}
-	tree_destroy
+	tree_destroy(tree);
 	}
 }
 
