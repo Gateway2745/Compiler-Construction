@@ -25,9 +25,12 @@ void print_rule_local(Term * rule) {
 }
 
 void free_children(parseTree * t) {
+	printf("Freeing %p\n", t);
+	if(t == NULL || t->children == NULL) return;
 	for(int i = 0; i < t->num_children; i++) free_children(t->children[i]);
 	for(int i = 0; i < t->num_children; i++) free(t->children[i]);
 	free(t->children);
+	printf("Iter complete\n");
 }
 
 int apply(Grammar * g, parseTree * t, tokenStream ** stream, Term * rule) {
@@ -86,9 +89,10 @@ int apply(Grammar * g, parseTree * t, tokenStream ** stream, Term * rule) {
 			t->children[i]->term.type = type;
 			printf("Sublooping %d\n", j);
 			error = apply(g, t->children[i], &s, rules[j]);
-			printf("Sublooping %d\n", j);
+			printf("Sublooping %d, error is %d\n", j, error);
 			if(!error) break;
-			free_children(t);
+			// free_children(t->children[i]);
+			printf("Leaving subloop\n");
 		}
 		if(error) return -1;
 	}

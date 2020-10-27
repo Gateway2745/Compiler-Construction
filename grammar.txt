@@ -25,9 +25,9 @@
 <singlevar_dec> <KEY_DECL> <ID> <CLN> <dtype> <SEMCOL>
 <singlevar_dec> <KEY_DECL> <ID> <CLN> <jagged2_dec> <SEMCOL> <jagged2_init>
 <singlevar_dec> <KEY_DECL> <ID> <CLN> <jagged3_dec> <SEMCOL> <jagged3_init>
-<multivar_dec> <KEY_DECL> <KEY_LIST> <KEY_OF> <KEY_VALS> <listvar> <CLN> <dtype> <SEMCOL>
-<multivar_dec> <KEY_DECL> <KEY_LIST> <KEY_OF> <KEY_VALS> <listvar> <CLN> <jagged2_dec> <SEMCOL> <jagged2_init> 
-<multivar_dec> <KEY_DECL> <KEY_LIST> <KEY_OF> <KEY_VALS> <listvar> <CLN> <jagged3_dec> <SEMCOL> <jagged3_init>
+<multivar_dec> <KEY_DECL> <KEY_LIST> <KEY_OF> <KEY_VARS> <listvar> <CLN> <dtype> <SEMCOL>
+<multivar_dec> <KEY_DECL> <KEY_LIST> <KEY_OF> <KEY_VARS> <listvar> <CLN> <jagged2_dec> <SEMCOL> <jagged2_init> 
+<multivar_dec> <KEY_DECL> <KEY_LIST> <KEY_OF> <KEY_VARS> <listvar> <CLN> <jagged3_dec> <SEMCOL> <jagged3_init>
 
 <jagged2_idx> <SEMCOL> <INT> <jagged2_idx>
 <jagged2_idx> e 
