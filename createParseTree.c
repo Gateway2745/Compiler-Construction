@@ -21,7 +21,27 @@ void reverse_dump(stack ** st, Term * rule) {
 	reverse_dump(st, rule->next);
 }
 
+void print_rule_local(Term * rule) {
+	if(!rule) return;
+	char buf[25];
+	get_str(rule->type, buf, rule->is_term);
+	printf("%s (is_term %d) ", buf, rule->is_term);
+	print_rule_local(rule->next);
+}
+
+void free_children(parseTree * t) {
+	for(int i = 0; i < t->num_children; i++) free_children(t->children[i]);
+	for(int i = 0; i < t->num_children; i++) free(t->children[i]);
+	free(t->children);
+}
+
 int apply(Grammar * g, parseTree * t, tokenStream * s, Term * rule) {
+
+	char buffer[25];
+	get_str(t->term.type, buffer, t->term.is_term);
+	printf("Applying rule %d %s:\n", t->term.is_term, buffer);
+	print_rule_local(rule);
+	printf("\n");
 
 	stack * local_stack = (stack *) malloc(sizeof(stack));
 	reverse_dump(&local_stack, rule);
@@ -33,9 +53,10 @@ int apply(Grammar * g, parseTree * t, tokenStream * s, Term * rule) {
 		t->children[i] = (parseTree *) malloc(sizeof(parseTree));
 		int is_term = local_stack->head->is_term;
 		TermType type = pop(local_stack)->type;
+		int error = 1;
 
 		if(is_term) {
-			int error = (type.tok.token != s->token);
+			error = (type.tok.token != s->token);
 			if(error) return -1;
 			t->num_children = 0;
 			t->children = NULL;
@@ -48,9 +69,13 @@ int apply(Grammar * g, parseTree * t, tokenStream * s, Term * rule) {
 		int num_rules;
 		Term ** rules = get_rules(g, type, &num_rules);
 		for(int j = 0; j < num_rules; j++) {
-			;
+			error = apply(g, t->children[i], s, rules[j]);
+			if(!error) break;
+			free_children(t);
 		}
+		if(error) return -1;
 	}
+	return 0;
 }
 
 void createParseTree(parseTree *t, tokenStream *s, Grammar g) {
@@ -62,9 +87,12 @@ void createParseTree(parseTree *t, tokenStream *s, Grammar g) {
 
 	stackNode *starter = (stackNode *) malloc(sizeof(stackNode));
 	starter->is_term = 0;
-	starter->type.nt = KEY_PROG;
+	starter->type.nt = PROGRAM;
 	stack * st = (stack *) malloc(sizeof(stack));
 	push(st, starter);
+
+	t->term.is_term = 0;
+	t->term.type.nt = PROGRAM;
 
 	int num_rules;
 	Term ** rules = get_rules(&g, starter->type, &num_rules);

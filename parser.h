@@ -141,6 +141,7 @@ void printTypeExpressionTable(typeExpressionTable T);
 
 void get_str(TermType t, char * buf, int is_term);
 Term** get_rules(Grammar* g, TermType t, int* num_rules);
+void print_rule_local(Term * rule);
 
 stackNode * pop(stack * s);
 stackNode * peek(stack * s);
