@@ -161,6 +161,12 @@ Term** get_rules(Grammar* g, TermType t, int* num_rules) // returns pointer to a
     int count = 0;
     for(int i=0;i<g->num_rules;i++) if(g->rules[i]->type.nt == t.nt) req[count++]=g->rules[i]->next;
     if(num_rules) *num_rules = j;
-    if(j==0) printf("NO RULES FOUND FOR GIVEN NON-TERMINAL!\nIS THIS A TERMINAL??\nABORT NOW!!");
+    if(j==0) {
+        char buffer[25];
+        char buffer1[25];
+        get_str(t, buffer, 0);
+        get_str(t, buffer1, 1);
+        printf("NO RULES FOUND FOR GIVEN NON-TERMINAL %s!\nIS THIS A TERMINAL %s??\nABORT NOW!!", buffer, buffer1);
+    }
     return req;
 }
