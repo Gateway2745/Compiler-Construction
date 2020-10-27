@@ -454,7 +454,11 @@ link get_data_type_right(parseTree * tree, typeExpressionTable * table) // gets 
             printf("%s\n LINE-NUMBER %d\n", err_msg,tree->children[0]->term.type.tok.line_num);
             exit(0);
         }
-
+        
+        if(tree->children[1]->term.is_term==1 && tree->children[1]->term.type.tok.token==OP_SLASH)
+        {
+            d_left.type.prim_info=REAL;
+        }
     }
     
     tree->type_info = d_left; // check this...assigns internal node of parse tree the same link as its left child( only same type expression is important here)
