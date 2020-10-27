@@ -180,6 +180,8 @@ link * run_rect(parseTree * node, typeExpressionTable * table) {
     info->type.rect_arr_info.num_dim = depth;
     info->type.rect_arr_info.dim_range = (Var_Pair *) malloc(depth * sizeof(Var_Pair));
     int success = fill_ranges(node->children[1], info->type.rect_arr_info.dim_range, table);
+    printf("Dims %d\n", depth);
+    for(int i = 0; i < depth; i++) printf("Range %d to %d\n", info->type.rect_arr_info.dim_range[i].r1.r_s, info->type.rect_arr_info.dim_range[i].r2.r_s);
     if(success == -1) return NULL;
     return info;
 }
