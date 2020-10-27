@@ -38,9 +38,9 @@ int apply(Grammar * g, parseTree * t, tokenStream ** stream, Term * rule) {
 	tokenStream * s = *stream;
 	char buffer[25];
 	get_str(t->term.type, buffer, t->term.is_term);
-	// printf("Applying rule %d %s:\n", t->term.is_term, buffer);
-	// print_rule_local(rule);
-	// printf("\n");
+	printf("Applying rule %d %s:\n", t->term.is_term, buffer);
+	print_rule_local(rule);
+	printf("\n");
 
 	stack * local_stack = (stack *) malloc(sizeof(stack));
 	local_stack->head = reverse_dump(rule);
@@ -55,13 +55,14 @@ int apply(Grammar * g, parseTree * t, tokenStream ** stream, Term * rule) {
 	for(int i = 0; i < length; i++) {
 
 		stackNode * temp = pop(local_stack);
+		printf("Looking at %s line %d\n", s->lexeme, s->line_num);
 		// if(temp == NULL) printf("Underflow\n");		// Should not occur
 		int is_term = temp->is_term;
 		TermType type = temp->type;
 		int error = 1;
 
-		// get_str(type, buffer, is_term);
-		// printf("%s\n", buffer);
+		get_str(type, buffer, is_term);
+		printf("%s\n", buffer);
 
 		if(is_term) {
 			error = (type.tok.token != s->token);
@@ -91,7 +92,7 @@ int apply(Grammar * g, parseTree * t, tokenStream ** stream, Term * rule) {
 			t->children[i]->term.is_term = 0;
 			t->children[i]->term.type = type;
 			error = apply(g, t->children[i], &s, rules[j]);
-			// printf("Sublooping %d, error is %d\n", j, error);
+			printf("Sublooping %d, error is %d\n", j, error);
 			if(!error) break;
 			// free_children(t->children[i]);
 		}
@@ -127,37 +128,3 @@ void createParseTree(parseTree *t, tokenStream *s, Grammar g) {
 	}
 	printf("Successfully built parse tree\n");
 }
-
-
-
-
-/*
-int try(cursor ** current_token_stream, tree, stack) {
-int size
-if(topstack->is_term ==1) {
-	if(topstack->tok == tok_stream->[0])
-		pop(stack);
-	else continue;
-
-} return; 	// readterm does (topstack->tok == tok_stream->[0] )? 1:0 //pop from stack if success, else not
-stackNode top_stack = peek(stack);
-Term** rules = get_rules(G, top_stack->nonterm, &size);
-For rule in range size {
-Push rule on temp_stack
-Cursor * Temp_current_stream_token = *current_token_stream
-Tree_setup (create only for non-terms)
-While temp_stack {
-Is_term = check_if_term(top_temp_stack)
-Success = try(&temp_current_stream_token, tree->child[counter], temp_stack);
-if(!is_term) counter++;
-if(success == 0) break;
-}
-if(sucess){
-Pop from stack
-*Current_token_stream = Temp_current_stream_token
- Break
-}
-tree_destroy
-}
-}
-*/
