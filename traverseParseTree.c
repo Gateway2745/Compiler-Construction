@@ -182,6 +182,7 @@ link * run_rect(parseTree * node, typeExpressionTable * table) {
     int success = fill_ranges(node->children[1], info->type.rect_arr_info.dim_range, table);
     printf("Dims %d\n", depth);
     for(int i = 0; i < depth; i++) printf("Range %d to %d\n", info->type.rect_arr_info.dim_range[i].r1.r_s, info->type.rect_arr_info.dim_range[i].r2.r_s);
+    for(int i = 0; i < depth; i++) printf("Range %s to %s\n", info->type.rect_arr_info.dim_range[i].r1.r_d, info->type.rect_arr_info.dim_range[i].r2.r_d);
     if(success == -1) return NULL;
     return info;
 }
