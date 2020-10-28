@@ -220,7 +220,7 @@ int is_op_compatible(link l1, link l2, Token tok, ErrInfo* ei)
         {
             if(l1.type.prim_info!=l2.type.prim_info)
             {
-                snprintf(ei->msg, 31, "Type Mismatch");
+                snprintf(ei->msg, 31, "primitive type mismatch");
                 return 0;
             }
 
@@ -228,7 +228,7 @@ int is_op_compatible(link l1, link l2, Token tok, ErrInfo* ei)
             {
                 if(tok == OP_OR || tok == OP_AND)
                 {
-                    snprintf(ei->msg, 31, "Invalid Operantion");
+                    snprintf(ei->msg, 31, "primitive type mismatch");
                     return 0;
                 }
             }
@@ -242,19 +242,19 @@ int is_op_compatible(link l1, link l2, Token tok, ErrInfo* ei)
 
             if(r1.betype!=INTEGER || r2.betype!=INTEGER)
             {
-                snprintf(ei->msg, 31, "Invalid Array Type");
+                snprintf(ei->msg, 31, "invalid array type");
                 return 0;
             }
 
             if(tok==OP_AND || tok==OP_OR || tok==OP_SLASH)
             {
-                snprintf(ei->msg, 31, "INVALID ARRAY OPERATION");
+                snprintf(ei->msg, 31, "invalid array operation");
                 return 0;
             }
 
             if(r1.num_dim!=r2.num_dim)
             {
-                snprintf(ei->msg, 31, "Array operand dim. mismatch");
+                snprintf(ei->msg, 31, "RA size mismatch");
             }
 
             Var_Pair* v1 = r1.dim_range;
@@ -269,7 +269,7 @@ int is_op_compatible(link l1, link l2, Token tok, ErrInfo* ei)
                 }
                 if(v1[i].r2.r_s - v1[i].r1.r_s != v2[i].r2.r_s - v2[i].r1.r_s)
                 {
-                    snprintf(ei->msg, 31, "Array operand dim. mismatch");
+                    snprintf(ei->msg, 31, "RA size mismatch");
                     return 0;
                 }
             }
@@ -283,24 +283,24 @@ int is_op_compatible(link l1, link l2, Token tok, ErrInfo* ei)
 
             if(r1.betype!=INTEGER || r2.betype!=INTEGER)
             {
-                snprintf(ei->msg, 31, "Invalid Array Type");
+                snprintf(ei->msg, 31, "invalid array type");
                 return 0;
             }
 
             if(tok==OP_AND || tok==OP_OR || tok==OP_SLASH)
             {
-                snprintf(ei->msg, 31, "INVALID ARRAY OPERATION");
+                snprintf(ei->msg, 31, "invalid array operation");
                 return 0;
             }
 
             if(r1.num_dim!=r2.num_dim) // checks for 2D and 3D jagged array
             {
-                snprintf(ei->msg, 31, "Array operand dim. mismatch");
+                snprintf(ei->msg, 31, "JA size mismatch");
                 return 0;
             }
             if(r1.range_R1.r2 - r1.range_R1.r1 != r2.range_R1.r2 - r2.range_R1.r1) // checks for same number of R1 dimensions
             {
-                snprintf(ei->msg, 31, "Array operand dim. mismatch");
+                snprintf(ei->msg, 31, "JA size mismatch");
                 return 0;
             }
 
@@ -311,14 +311,14 @@ int is_op_compatible(link l1, link l2, Token tok, ErrInfo* ei)
             {
                 if(v1[i].num_dim != v2[i].num_dim) 
                 {
-                    snprintf(ei->msg, 31, "Array operand dim. mismatch");
+                    snprintf(ei->msg, 31, "JA size mismatch");
                     return 0;
                 }
                 for(int j=0;j<v1[i].num_dim;j++)
                 {
                     if(v1[i].dims[j] != v2[i].dims[j])
                     {
-                        snprintf(ei->msg, 31, "Array operand dim. mismatch");
+                        snprintf(ei->msg, 31, "JA size mismatch");
                         return 0;
                     }
                 }
@@ -340,7 +340,7 @@ link get_data_type_of_id(parseTree * tree, typeExpressionTable * table, ErrInfo*
     if(!l)
     {
         strcpy(ei->lex1,lexeme);
-        snprintf(ei->msg, 31, "Undeclared Variable");
+        snprintf(ei->msg, 31, "undeclared variable");
         ei->success=0;
         return (link){};     
     }
@@ -359,7 +359,7 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table, ErrInfo* e
 
     if(tree->num_children==2 && l1.arr_info==PRIMITIVE)
     {
-        snprintf(ei->msg, 31, "INVALID INDEX");
+        snprintf(ei->msg, 31, "can't index primitive");
         parseTree* tmp = tree->children[1]->children[1]->children[0]->children[0];
         strcpy(ei->lex2,tmp->term.type.tok.lexeme);
         get_str(tmp->term.type,ei->type2,tmp->term.is_term);
@@ -384,7 +384,7 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table, ErrInfo* e
             ei->depth += 2;
             if(tmp->term.type.tok.token==ID)
             {
-                snprintf(ei->msg, 31, "ARRAY DIM CHECK FAILED");
+                snprintf(ei->msg, 31, "array dim. check failed");
                 strcpy(ei->lex2,tmp->term.type.tok.lexeme);
                 get_str(tmp->term.type,ei->type2,tmp->term.is_term);
                 ei->success=0;
@@ -409,7 +409,7 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table, ErrInfo* e
 
             if(curr_idx != found_num_dims)
             {
-                snprintf(ei->msg, 31, "NO. OF ARRAY DIM. MISMATCH");
+                snprintf(ei->msg, 31, "RA size mismatch");
                 ei->success=0;
                 return (link){};
             }
@@ -418,14 +418,14 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table, ErrInfo* e
             {
                 if(found_dims[i].is_r1_static==0 || found_dims[i].is_r2_static==0) 
                 {
-                    snprintf(ei->msg, 31, "ARRAY DIM. CHECK FAILED");
+                    snprintf(ei->msg, 31, "RA dim. check failed");
                     ei->success=0;
                     return (link){};
                 }
 
                 if(!(dims[i]>=found_dims[i].r1.r_s && dims[i] <= found_dims[i].r2.r_s))
                 {
-                    snprintf(ei->msg, 31, "ARRAY DIM. OUT OF BOUNDS");
+                    snprintf(ei->msg, 31, "RA dim. out of bounds");
                     ei->success=0;
                     return (link){};
                 }
@@ -444,14 +444,14 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table, ErrInfo* e
 
             if(curr_idx != found_num_dims)
             {
-                snprintf(ei->msg, 31, "NO. OF ARRAY DIM. MISMATCH");
+                snprintf(ei->msg, 31, "JA dim. mismatch");
                 ei->success=0;
                 return (link){};
             }
 
             if(!(dims[0]>=found_dims_R1.r1 || dims[0] <= found_dims_R1.r2)) 
             {
-                snprintf(ei->msg, 31, "ARRAY R1 DIM. OUT OF BOUNDS");
+                snprintf(ei->msg, 31, "JA dim. out of bounds");
                 ei->success=0;
                 return (link){};
             }
@@ -462,7 +462,7 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table, ErrInfo* e
                     int a = dims[1]>=0 && dims[1]<found_dims_R2[idx].dims[0];
                     if (!a)
                     {
-                        snprintf(ei->msg, 31, "ARRAY R2 DIM. OUT OF BOUNDS");
+                        snprintf(ei->msg, 31, "2D JA dim. out of bounds");
                         ei->success=0;
                         return (link){};
                     }
@@ -475,13 +475,13 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table, ErrInfo* e
                 rng_R2 req = found_dims_R2[id1];
                 if(dims[1]>=req.num_dim || dims[1]<0)
                 {
-                    snprintf(ei->msg,31, "ARRAY DIM. OUT OF BOUNDS");
+                    snprintf(ei->msg,31, "3D JA dim. out of bounds");
                     ei->success=0;
                     return (link){};
                 }
                 if(dims[2]>=req.dims[dims[1]] || dims[2]<0)
                 {
-                    snprintf(ei->msg,31, "ARRAY DIM. OUT OF BOUNDS");
+                    snprintf(ei->msg,31, "3D JA dim. out of bounds");
                     ei->success=0;
                     return (link){};
                 }
@@ -544,7 +544,7 @@ link get_data_type_right(parseTree * tree, typeExpressionTable * table, ErrInfo*
         link* l = get_link(table,lexeme);
         if(!l)
         {
-            snprintf(ei->msg, 31, "Undeclared Variable");
+            snprintf(ei->msg, 31, "undeclared variable");
             strcpy(ei->lex1 , lexeme);
             get_str(tree->term.type,ei->type1,tree->term.is_term);
             ei->success=0;
