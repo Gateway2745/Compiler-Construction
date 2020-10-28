@@ -347,7 +347,6 @@ link get_data_type_of_id(parseTree * tree, typeExpressionTable * table, ErrInfo*
     {
         snprintf(ei->msg, 31, "Undeclared Variable");
         ei->success=0;
-        strcpy(ei->type1,"undefined");
         return (link){};     
     }
     tree->type_info = *l;
@@ -500,6 +499,28 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table, ErrInfo* e
 }
 
 
+parseTree* cornerLexeme(parseTree* root,int idx)
+{
+    if(idx==0)
+    {
+        while(root->num_children)
+        {
+            root = root->children[root->num_children-1];
+        }
+        return root;
+    }
+    if(idx==1)
+    {
+        while(root->num_children)
+        {
+            root = root->children[0];
+        }
+        return root;
+    }
+    return root;
+}
+
+
 link get_data_type_right(parseTree * tree, typeExpressionTable * table, ErrInfo* ei) // gets data type to right of assignment statement
 {
     ei->depth += 1;
@@ -528,7 +549,7 @@ link get_data_type_right(parseTree * tree, typeExpressionTable * table, ErrInfo*
         if(!l)
         {
             snprintf(ei->msg, 31, "Undeclared Variable");
-            strcpy(ei->lex1,lexeme);
+            strcpy(ei->lex1 , lexeme);
             get_str(tree->term.type,ei->type1,tree->term.is_term);
             ei->success=0;
             return (ei->depth-=1, (link){});   
@@ -545,19 +566,38 @@ link get_data_type_right(parseTree * tree, typeExpressionTable * table, ErrInfo*
 
     if(tree->num_children==3)
     {
+
+        get_str(tree->children[1]->term.type,ei->operator,tree->children[1]->term.is_term);
+        parseTree* leftlexeme = cornerLexeme(tree->children[0],0);
+        parseTree* rightlexeme = cornerLexeme(tree->children[tree->num_children-1],1);
+
+        //printf("lexemes %s and %s \n", leftlexeme->term.type.tok.lexeme,rightlexeme->term.type.tok.lexeme);
+
         d_right = get_data_type_right(tree->children[2],table,ei);
+
+        strcpy(ei->lex1,leftlexeme->term.type.tok.lexeme);
+        get_str(leftlexeme->term.type,ei->type1,leftlexeme->term.is_term);
+
+        strcpy(ei->lex2,rightlexeme->term.type.tok.lexeme);
+        get_str(rightlexeme->term.type,ei->type2,rightlexeme->term.is_term);
         if(!ei->success) return (ei->depth-=1, (link){});  
 
         ei->success = is_op_compatible(d_left,d_right,tree->children[1]->term.type.tok.token,ei);
+        strcpy(ei->lex1,leftlexeme->term.type.tok.lexeme);
+        get_str(leftlexeme->term.type,ei->type1,leftlexeme->term.is_term);
+
+        strcpy(ei->lex2,rightlexeme->term.type.tok.lexeme);
+        get_str(rightlexeme->term.type,ei->type2,rightlexeme->term.is_term);
         if(!ei->success) return (ei->depth-=1, (link){});  
         
-        get_str(tree->children[1]->term.type,ei->operator,tree->children[1]->term.is_term);
         if(tree->children[1]->term.is_term==1 && tree->children[1]->term.type.tok.token==OP_SLASH)
         {
             d_left.type.prim_info=REAL;
         }
+
     }
     
+
     tree->type_info = d_left;
     return (ei->depth-=1, tree->type_info);
 }
@@ -597,7 +637,15 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table,int depth) {
     }
 
     ei->success = is_op_compatible(type_left,type_right,ASSGN,ei);
-    strcpy(ei->operator,"ASSGN");
+
+    strcpy(ei->operator,"=");
+    parseTree* leftlexeme = cornerLexeme(tree->children[0],0);
+    parseTree* rightlexeme = cornerLexeme(tree->children[2],1);
+    strcpy(ei->lex1,leftlexeme->term.type.tok.lexeme);
+    get_str(leftlexeme->term.type,ei->type1,leftlexeme->term.is_term);
+    strcpy(ei->lex2,rightlexeme->term.type.tok.lexeme);
+    get_str(rightlexeme->term.type,ei->type2,rightlexeme->term.is_term);
+
     if(!ei->success)
     {
         printf("\nline : %d | stmt : %s | operator : %s | lexeme1 : %s | type1 : %s | lexeme2 : %s | type2 : %s | depth : %d | message : %s\n", 
