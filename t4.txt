@@ -23,7 +23,7 @@ program ( )
 	abcd = ghd2_1 + ssd_2_3 ;
 	c2 = a1 /  a2  * u [ 4 5 ] ; 
 	b1 = c1 &&& d ;  
-	s4 [ 6 1 ] = a1 + a2 ;
+	s4 [ 3 2 ] = a1 + a2 ;
 	u = u + v ;              
 	c1 = a1 * a2 ;
 	s5 [ 8 2 ] = s4 [ 3 1 ] * a1 + c1 - a2 ; 

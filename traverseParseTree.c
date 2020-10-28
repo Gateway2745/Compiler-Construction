@@ -454,7 +454,8 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table, ErrInfo* e
 
             if(curr_idx==2)  // if jagged array has dimension 2
             {
-                    int a = dims[1]>=found_dims_R2[0].dims[0] && dims[1] <= found_dims_R2[1].dims[0];
+                    int idx = dims[0]-found_dims_R1.r1;
+                    int a = dims[1]>=0 && dims[1]<found_dims_R2[idx].dims[0];
                     if (!a)
                     {
                         snprintf(ei->msg, 31, "ARRAY R2 DIM. OUT OF BOUNDS");
