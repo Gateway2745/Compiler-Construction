@@ -374,9 +374,13 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table, int* line_
         int curr_idx=0;
         int size=1;
         int* dims = malloc(1 * sizeof(int));
-        for(int i=1;i<r->num_children-1;i++) // skip '[' and ']' of array index
+
+        parseTree* array_sel = r->children[1];
+
+        while(1)
         {
-            parseTree* tmp = r->children[i]->children[0]->children[0];   // in our grammar '<array_sel>' has only one child '<index>' which can either be '<var>' or '<int'>
+            parseTree* tmp = array_sel->children[0]->children[0]; // 'tmp' is pointing to parse tree node whose token is '<array_sel>'
+
             if(tmp->term.type.tok.token==ID)
             {
                 snprintf(err_msg, 200, "ARRAY DIMENSIONS MUST BE FULLY SPECIFIED FOR ARITHMETIC");
@@ -384,22 +388,24 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table, int* line_
                 return (link){};
             }
 
-            assert(tmp->term.type.tok.token == INT);
-
             if(curr_idx+1>size) dims = realloc(dims, size*=2);
             
             dims[curr_idx++] = atoi(tmp->term.type.tok.lexeme);
 
+            if(array_sel->num_children==2) array_sel = array_sel->children[1];
+            else break;
         }
+
         dims = realloc(dims,curr_idx);
 
         if(l1.arr_info==RECT_ARR)
         {
             Var_Pair* found_dims = l1.type.rect_arr_info.dim_range;    // this and next 2 values obtained from type expression of variable
             int found_num_dims = l1.type.rect_arr_info.num_dim;
-
+            
             if(curr_idx != found_num_dims)
             {
+                
                 snprintf(err_msg, 200, "NUMBER OF ARRAY DIMENSIONS DO NOT MATCH !!\n Line-Number - %d \n", *line_number);
                 *success=0;
                 return (link){};
