@@ -63,7 +63,6 @@ link * run_jagged(parseTree * dec, parseTree * init) {
     info->type.jagged_arr_info.range_R2 = (rng_R2 *) malloc(range_1 * sizeof(rng_R2));
     
     if(dim2) {
-        // int line_num;
         for(int i = 0; i < range_1; i++) {
             info->type.jagged_arr_info.range_R2[i].num_dim = 1;
             info->type.jagged_arr_info.range_R2[i].dims = (int *) malloc(sizeof(int));
@@ -83,24 +82,6 @@ link * run_jagged(parseTree * dec, parseTree * init) {
             }
             if(i < range_1 - 1) init = init->children[1];
         }
-        /*
-        while(count < range_1) {
-            line_num = init->children[0]->children[0]->term.type.tok.line_num;
-            info->type.jagged_arr_info.range_R2[count++].dims[0] = atoi(init->children[0]->children[6]->term.type.tok.lexeme);
-            if(init->num_children == 1 || init->children[1]->num_children > 1 && count == range_1-1) {
-                char buf[25];
-                get_str(init->children[0]->term.type, buf, init->children[0]->term.is_term);
-                printf("%s\n", buf);
-                printf("Error - Line %d - R1 Size mismatch %d\n", line_num+1, init->children[0]->term.type.tok.token==INT);
-                return NULL;
-            }
-            if(count == range_1 && init->num_children > 1) {
-                printf("Huh?\n");
-            }
-            init = init->children[1];
-        }
-        */
-        printf("Jag2 %d %d\n", count, init->num_children);
         return info;
     }
     

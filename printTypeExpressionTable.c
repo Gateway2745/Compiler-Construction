@@ -16,7 +16,8 @@ void print_jagged_type(jagged_arr_te info) {
     printf("NumDims-%2d\t", info.num_dim);
     printf("Basic Range- [%d..%d]\t", info.range_R1.r1, info.range_R1.r2);
     printf("Other ranges- ");
-    for(int i = 0; i < info.num_dim; i++) {
+    int num_ranges = info.range_R1.r2 + 1 - info.range_R1.r1;
+    for(int i = 0; i < num_ranges; i++) {
         printf("SubDimensions %d Sizes ", info.range_R2[i].num_dim);
         for(int j = 0; j < info.range_R2[i].num_dim; j++) printf("%d ", info.range_R2[i].dims[j]);
     }
