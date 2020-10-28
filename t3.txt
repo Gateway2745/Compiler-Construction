@@ -17,7 +17,7 @@ program ( )
 	b1 = c1 &&& d ;  
 	u = u + v ;              
 	c1 = a1 * a2 ; 
-	abcd [ 4 ] = ghd2_1 [ 5 ] + ssd_2_3 [ 2 ] ;
+	abcd [ 5 ] = ghd2_1 [ 5 ] + ssd_2_3 [ 2 ] ;
 	m1 = m2 + a1 ;                 	
 	abcd = ghd2_1 * m1 + b1 ;
 }

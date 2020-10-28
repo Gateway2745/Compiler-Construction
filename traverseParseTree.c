@@ -402,11 +402,11 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table, int* line_
         {
             Var_Pair* found_dims = l1.type.rect_arr_info.dim_range;    // this and next 2 values obtained from type expression of variable
             int found_num_dims = l1.type.rect_arr_info.num_dim;
-            
+
             if(curr_idx != found_num_dims)
             {
                 
-                snprintf(err_msg, 200, "NUMBER OF ARRAY DIMENSIONS DO NOT MATCH !!\n Line-Number - %d \n", *line_number);
+                snprintf(err_msg, 200, "NUMBER OF ARRAY DIMENSIONS DO NOT MATCH");
                 *success=0;
                 return (link){};
             }
@@ -517,7 +517,7 @@ link get_data_type_right(parseTree * tree, typeExpressionTable * table, int* suc
         link* l = get_link(table,lexeme);
         if(!l)
         {
-            snprintf(err_msg, 200, "Variable %s Not Declared \n Exiting!!", lexeme);
+            snprintf(err_msg, 200, "Variable %s Not Declared!!", lexeme);
             *success=0;
             return (link){};    
         }
@@ -535,7 +535,6 @@ link get_data_type_right(parseTree * tree, typeExpressionTable * table, int* suc
     {
         d_right = get_data_type_right(tree->children[2],table,success,err_msg);
         if(!*success) return (link){}; 
-
 
         *success = is_op_compatible(d_left,d_right,tree->children[1]->term.type.tok.token,err_msg);
         if(!*success) return (link){}; 
@@ -565,7 +564,7 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table) {
 
     if(!success)
     {
-        printf("%s\n Line Number - %d\n", err_msg, line_number);
+        printf("\n\t\tMessage : %s\n\t\tLine Number : %d\n", err_msg, line_number);
         return;
     }
 
@@ -573,15 +572,15 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table) {
 
     if(!success)
     {
-        printf("%s\n Line Number - %d\n", err_msg, line_number);
+        printf("\n\t\tMessage : %s\n\t\tLine Number : %d\n", err_msg, line_number);
         return;
     }
 
-    //printf("actual triple LN - %d\n", line_number);
-    
-    if(!is_op_compatible(type_left,type_right,ASSGN,err_msg))
+    success = is_op_compatible(type_left,type_right,ASSGN,err_msg);
+
+    if(!success)
     {
-        printf("%s\n LINE-NUMBER %d \n", err_msg , line_number);
+        printf("\n\t\tMessage : %s\n\t\tLine Number : %d\n", err_msg, line_number);
         return;
     }
 }
