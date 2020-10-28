@@ -149,11 +149,12 @@ void tokeniseSourcecode(char * source_file, tokenStream *s);
 void readGrammar(char *filename, Grammar* g);
 void createParseTree(parseTree *t, tokenStream *s, Grammar g);
 void traverseParseTree(parseTree *t, typeExpressionTable *Table);
-void printParseTree(parseTree * t);
+void printParseTree(parseTree * t, int print_type);
 void printTypeExpressionTable(typeExpressionTable T);
 
 void get_str(TermType t, char * buf, int is_term);
 Term** get_rules(Grammar* g, TermType t, int* num_rules);
+void printTypeLine (link * l);
 void print_rule_local(Term * rule);
 
 stackNode * pop(stack * s);

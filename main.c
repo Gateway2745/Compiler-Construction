@@ -4,9 +4,9 @@ void driver(char * filename) {
     while (1)
     {
         int option;
-        printf("Enter option: 0-exit, 1-create_tree 2-traverse_tree, 3-print_tree 4-print_table\n");
+        printf("\nEnter option:\n0-exit\n1-create_tree\n2-traverse_tree\n3-print_tree (with type info) (WARNING - will not fit in a line)\n4-print_table\n5-print_tree (without type info) (pretty)\n");
         scanf("%d", &option);
-        if(!(option >= 0 && option <= 4)) {
+        if(!(option >= 0 && option <= 5)) {
             printf("Invalid option\n");
             continue;
         }
@@ -24,27 +24,26 @@ void driver(char * filename) {
         tokeniseSourcecode(filename, &Stream);
         createParseTree(&Tree, &Stream, G);
 
-        if(option == 1) {
-            printf("Parse Tree created\n");
-            continue;
-        }
+        if(option == 1) continue;
 
         typeExpressionTable Table;
         for(int i = 0; i < 16; i++) Table.heads[i] = NULL;
         traverseParseTree(&Tree, &Table);
 
-        if(option == 2) {
-            printf("Parse Tree traversed\n");
-            continue;
-        }
+        if(option == 2) continue;
 
         if(option == 3) {
-            printParseTree(&Tree);
+            printParseTree(&Tree, 1);
             continue;
         }
 
         if(option == 4) {
             printTypeExpressionTable(Table);
+            continue;
+        }
+
+        if(option == 5) {
+            printParseTree(&Tree, 0);
             continue;
         }
     }

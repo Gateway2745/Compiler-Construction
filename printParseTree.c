@@ -99,7 +99,7 @@ void print_type_info(parseTree * t) {
     printf("Arrstorage (If appl)-%-4s\t", arr_type);
 }
 
-void internalPrintParseTree(parseTree * t, int depth) {
+void internalPrintParseTree(parseTree * t, int depth, int print_type) {
 
     char buf[25];
     int is_term = t->term.is_term;
@@ -107,19 +107,21 @@ void internalPrintParseTree(parseTree * t, int depth) {
     int line_num = (t->term.is_term) ? t->term.type.tok.line_num : -1;
     get_str(t->term.type, buf, t->term.is_term);
     printf("Depth-%3d\t", depth);
-    printf("Symbol-%-15s\t", buf);
+    printf("Symbol-%-20s\t", buf);
     printf("Is_term-%d\t", is_term);
-    print_type_info(t);
     if(is_term) printf("Lexeme-%-20s\t", lexeme);
     if(is_term) printf("Line-%3d\t", line_num);
     else {
         printf("Rule-");
         print_rule(t);
     }
-    printf("\n");
-    for(int i = 0; i < t->num_children; i++) internalPrintParseTree(t->children[i], depth+1);
+    if(print_type) {printf("\tType info- ");    printTypeLine(&(t->type_info));}
+    else printf("\n");
+    for(int i = 0; i < t->num_children; i++) internalPrintParseTree(t->children[i], depth+1, print_type);
 }
 
-void printParseTree(parseTree * t) {
-    internalPrintParseTree(t, 0);
+void printParseTree(parseTree * t, int print_type) {
+    printf("Printing tree\n");
+    internalPrintParseTree(t, 0, print_type);
+    printf("Print tree complete\n");
 }

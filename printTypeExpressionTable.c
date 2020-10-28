@@ -51,6 +51,8 @@ void printTypeLine (link * l) {
 }
 
 void printTypeExpressionTable(typeExpressionTable T) {
+
+    printf("Printing Table\n");
     for(int i = 0; i < 16; i++) {
         link * mover = T.heads[i];
         while(mover) {
@@ -58,4 +60,5 @@ void printTypeExpressionTable(typeExpressionTable T) {
             mover = mover->next;
         }
     }
+    printf("Printed Table\n");
 }

@@ -103,11 +103,7 @@ int apply(Grammar * g, parseTree * t, tokenStream ** stream, Term * rule) {
 
 void createParseTree(parseTree *t, tokenStream *s, Grammar g) {
 
-	if(!t) {
-		// printf("Provide proper tree starter\n");
-		return;
-	}
-
+	printf("Building parse tree\n");
 	stackNode *starter = (stackNode *) malloc(sizeof(stackNode));
 	starter->is_term = 0;
 	starter->type.nt = PROGRAM;
