@@ -354,6 +354,7 @@ link get_data_type_of_id(parseTree * tree, typeExpressionTable * table, ErrInfo*
     link* l = get_link(table,lexeme);
     if(!l)
     {
+        strcpy(ei->lex1,lexeme);
         snprintf(ei->msg, 31, "Undeclared Variable");
         ei->success=0;
         return (link){};     
