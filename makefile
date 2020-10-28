@@ -1,2 +1,2 @@
-parser: *.c
-	gcc *.c -o parser
+parser:	*.c
+	gcc	*.c	-o	parser
