@@ -8,6 +8,6 @@ program ( )
 	declare list of variables b1 b2 b3 : boolean ;
 	declare list of variables c1 c2 : real ;
 	declare list of variables m1 m2 m3 : real ;                 	
-	v1 = d &&& abcd [ 5 ] ||| abcd [ 3 ] ;
+	abcd [ v1 ] = d &&& abcd [ 5 ] ||| abcd [ 3 ] ;
 	c1 = a1 + a2 ; 
 }

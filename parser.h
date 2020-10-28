@@ -127,6 +127,19 @@ typedef struct typeExpressionTable {
     link * heads[16];
 } typeExpressionTable;
 
+typedef struct ErrInfo {
+    int success;
+    int line_number;
+    char stmt_type[21];
+    char operator[21];
+    char lex1[21];
+    char type1[21];
+    char lex2[21];
+    char type2[21];
+    int depth;
+    char msg[31];
+} ErrInfo;
+
 char * loadfile (char * filename, long * sizeptr);
 
 link * get_link(typeExpressionTable * t, char * str);
