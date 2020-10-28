@@ -308,6 +308,7 @@ int is_op_comaptible(link l1,link l2,char* err)
             return 1;
         }
     }
+    snprintf(err, 200, "TYPES DO NO MATCH!!\n");
     return 0;
 }
 
@@ -328,6 +329,13 @@ link get_data_type_of_id(parseTree * tree, typeExpressionTable * table) // tree 
 link get_data_type_var(parseTree * tree, typeExpressionTable * table)
 {
     link l1 = get_data_type_of_id(tree->children[0],table);
+
+    if(tree->num_children==2 && l1.arr_info==PRIMITIVE)
+    {
+        printf("var is %s \n", tree->children[0]->term.type.tok.lexeme);
+        printf("CANNOT INDEX A PRIMITIVE TYPE!!\n");
+        exit(0);
+    }
 
     if(tree->num_children==2)
     {
@@ -371,12 +379,17 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table)
                     printf("ARRAY VARIABLE DIMENSION DECLARED DYNAMIC SO UNABLE TO CHECK!!");
                     exit(0);
                 }
-                if(!(dims[i]>=found_dims[i].r1.r_s || dims[i] <= found_dims[i].r2.r_s))
+
+                if(!(dims[i]>=found_dims[i].r1.r_s && dims[i] <= found_dims[i].r2.r_s))
                 {
                     printf("ARRAY BOUNDS OUT OF RANGE!!");
                     exit(0);
                 }
             }
+
+            l1.arr_info = PRIMITIVE;
+            l1.type.prim_info = l1.type.rect_arr_info.betype;   // after indexing array element, it is a primitive integer
+
         }
 
         if(l1.arr_info==JAG_ARR)
@@ -424,6 +437,8 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table)
                 }
             }
 
+            l1.arr_info = PRIMITIVE;
+            l1.type.prim_info = l1.type.rect_arr_info.betype;   // after indexing array element, it is a primitive integer
         }
     }
     return l1;
@@ -432,6 +447,8 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table)
 
 link get_data_type_right(parseTree * tree, typeExpressionTable * table) // gets data type to right of assignment statement
 {
+    int line_number;
+
     if(tree->term.type.nt==VAR) return get_data_type_var(tree, table);
 
     if(tree->num_children==0) // needed for <INT> tokens
@@ -448,7 +465,9 @@ link get_data_type_right(parseTree * tree, typeExpressionTable * table) // gets 
             tree->type_info = l;
             return l;
         }
-        int line_number = tree->term.type.tok.line_num;
+        
+        line_number = tree->term.type.tok.line_num;
+
         link* l = get_link(table,lexeme);
         if(!l)
         {
@@ -508,4 +527,7 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table) {
 void traverseParseTree(parseTree *t, typeExpressionTable *Table) {
     traverseDeclares(t, Table);
     traverseAssigns(t, Table);
+
+    // link* l1 = get_link(Table, "xyz");
+    // printf("type is %d \n", l1->arr_info);
 }
