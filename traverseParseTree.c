@@ -219,7 +219,7 @@ void traverseDeclares(parseTree * tree, typeExpressionTable * table) {
 
 /****      ASSIGNMENT TRAVERSAL   ********/
 
-int is_op_compatible(link l1,link l2,char* err)
+int is_op_compatible(link l1, link l2, Token tok, char* err)
 {
     if(l1.arr_info==l2.arr_info)
     {
@@ -230,6 +230,16 @@ int is_op_compatible(link l1,link l2,char* err)
                 snprintf(err, 200, "PRIMITIVE TYPES DON'T MATCH!!");
                 return 0;
             }
+
+            if(l1.type.prim_info==INTEGER || l1.type.prim_info==REAL)
+            {
+                if(tok == OP_OR || tok == OP_AND)
+                {
+                    snprintf(err, 200, "BOOLEAN OPERATIONS CANT BE PERFORMED ON INTEGER OR REAL VARIABLES!!");
+                    return 0;
+                }
+            }
+
             return 1;
         }
         if(l1.arr_info==RECT_ARR)
@@ -242,6 +252,13 @@ int is_op_compatible(link l1,link l2,char* err)
                 snprintf(err, 200, "ONLY INTEGER ARRAYS ALLOWED!!");
                 return 0;
             }
+
+            if(tok==OP_AND || tok==OP_OR || tok==OP_SLASH)
+            {
+                snprintf(err, 200, "INVALID ARRAY OPERATION");
+                return 0;
+            }
+
             if(r1.num_dim!=r2.num_dim)
             {
                 snprintf(err, 200, "ARRAYS MUST HAVE SAME DIMENSION FOR ARITHMETIC!!");
@@ -265,6 +282,7 @@ int is_op_compatible(link l1,link l2,char* err)
             }
             return 1;
         }
+
         if(l1.arr_info==JAG_ARR)
         {
             jagged_arr_te r1 = l1.type.jagged_arr_info;
@@ -275,6 +293,13 @@ int is_op_compatible(link l1,link l2,char* err)
                 snprintf(err, 200, "ONLY INTEGER ARRAYS ALLOWED!!");
                 return 0;
             }
+
+            if(tok==OP_AND || tok==OP_OR || tok==OP_SLASH)
+            {
+                snprintf(err, 200, "INVALID ARRAY OPERATION");
+                return 0;
+            }
+
             if(r1.num_dim!=r2.num_dim) // checks for 2D and 3D jagged array
             {
                 snprintf(err, 200, "ARRAYS MUST HAVE SAME DIMENSION FOR ARITHMETIC!!");
@@ -308,6 +333,7 @@ int is_op_compatible(link l1,link l2,char* err)
             return 1;
         }
     }
+
     snprintf(err, 200, "TYPES DO NO MATCH!!");
     return 0;
 }
@@ -316,7 +342,7 @@ link get_data_type_of_id(parseTree * tree, typeExpressionTable * table, int* lin
 {
     char* lexeme = tree->term.type.tok.lexeme;
     *line_number = tree->term.type.tok.line_num;
-    //printf("actual LN - %d\n", *line_number);
+
     link* l = get_link(table,lexeme);
     if(!l)
     {
@@ -330,12 +356,10 @@ link get_data_type_of_id(parseTree * tree, typeExpressionTable * table, int* lin
 
 link get_data_type_var(parseTree * tree, typeExpressionTable * table, int* line_number, int* success, char* err_msg)
 {
-    //if(!*success) return (link){};
 
     link l1 = get_data_type_of_id(tree->children[0],table, line_number,success,err_msg);
     if(!*success) return (link){};
-    //printf("actual double LN - %d\n", *line_number);
-
+  
     if(tree->num_children==2 && l1.arr_info==PRIMITIVE)
     {
         //printf("var is %s \n", tree->children[0]->term.type.tok.lexeme);
@@ -428,7 +452,7 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table, int* line_
                     int a = dims[1]>=found_dims_R2[0].dims[0] && dims[1] <= found_dims_R2[1].dims[0];
                     if (!a)
                     {
-                        snprintf(err_msg,200, "ARRAY R2 DIMENSIONS OUT OF BOUND!!");
+                        snprintf(err_msg, 200, "ARRAY R2 DIMENSIONS OUT OF BOUND!!");
                         *success=0;
                         return (link){};
                     }
@@ -507,7 +531,7 @@ link get_data_type_right(parseTree * tree, typeExpressionTable * table, int* suc
         if(!*success) return (link){}; 
 
 
-        *success = is_op_compatible(d_left,d_right,err_msg);
+        *success = is_op_compatible(d_left,d_right,tree->children[1]->term.type.tok.token,err_msg);
         if(!*success) return (link){}; 
         
         if(tree->children[1]->term.is_term==1 && tree->children[1]->term.type.tok.token==OP_SLASH)
@@ -549,7 +573,7 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table) {
 
     //printf("actual triple LN - %d\n", line_number);
     
-    if(!is_op_compatible(type_left,type_right,err_msg))
+    if(!is_op_compatible(type_left,type_right,ASSGN,err_msg))
     {
         printf("%s\n LINE-NUMBER %d \n", err_msg , line_number);
         return;
