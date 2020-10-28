@@ -382,10 +382,12 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table, ErrInfo* e
 
         parseTree* array_sel = r->children[1];
 
+        int orig_depth = ei->depth;
+        ei->depth += 2;
         while(1)
         {
             parseTree* tmp = array_sel->children[0]->children[0]; // 'tmp' is pointing to parse tree node whose token is '<array_sel>'
-
+            ei->depth += 2;
             if(tmp->term.type.tok.token==ID)
             {
                 snprintf(ei->msg, 31, "ARRAY DIM CHECK FAILED");
@@ -399,12 +401,13 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table, ErrInfo* e
             
             dims[curr_idx++] = atoi(tmp->term.type.tok.lexeme);
 
-            if(array_sel->num_children==2) array_sel = array_sel->children[1];
+            if(array_sel->num_children==2) array_sel = array_sel->children[1], ei->depth -=1;
             else break;
         }
 
         dims = realloc(dims,curr_idx);
 
+        ei->depth = orig_depth;
         if(l1.arr_info==RECT_ARR)
         {
             Var_Pair* found_dims = l1.type.rect_arr_info.dim_range;    // this and next 2 values obtained from type expression of variable
@@ -499,9 +502,12 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table, ErrInfo* e
 
 link get_data_type_right(parseTree * tree, typeExpressionTable * table, ErrInfo* ei) // gets data type to right of assignment statement
 {
-    if(!ei->success) return (link){}; 
+    ei->depth += 1;
+    if(!ei->success) return (ei->depth-=1, (link){}); 
 
-    if(tree->term.type.nt==VAR) return get_data_type_var(tree, table, ei);
+    int orig_depth = ei->depth;
+    if(tree->term.type.nt==VAR) return (ei->depth-=1,get_data_type_var(tree, table, ei));
+    ei->depth = orig_depth;
 
     if(tree->num_children==0) // needed for <INT> tokens
     {
@@ -515,7 +521,7 @@ link get_data_type_right(parseTree * tree, typeExpressionTable * table, ErrInfo*
             l.arr_storage = STATIC;
             l.type = te;
             tree->type_info = l;
-            return l;
+            return (ei->depth-=1, l);
         }
 
         link* l = get_link(table,lexeme);
@@ -525,25 +531,25 @@ link get_data_type_right(parseTree * tree, typeExpressionTable * table, ErrInfo*
             strcpy(ei->lex1,lexeme);
             get_str(tree->term.type,ei->type1,tree->term.is_term);
             ei->success=0;
-            return (link){};    
+            return (ei->depth-=1, (link){});   
         }
         tree->type_info = *l;
-        return *l;
+        return (ei->depth-=1, *l);
     }
 
     link d_left;
     link d_right;
 
     d_left = get_data_type_right(tree->children[0],table,ei);
-    if(!ei->success) return (link){}; 
+    if(!ei->success) return (ei->depth-=1, (link){}); 
 
     if(tree->num_children==3)
     {
         d_right = get_data_type_right(tree->children[2],table,ei);
-        if(!ei->success) return (link){}; 
+        if(!ei->success) return (ei->depth-=1, (link){});  
 
         ei->success = is_op_compatible(d_left,d_right,tree->children[1]->term.type.tok.token,ei);
-        if(!ei->success) return (link){}; 
+        if(!ei->success) return (ei->depth-=1, (link){});  
         
         get_str(tree->children[1]->term.type,ei->operator,tree->children[1]->term.is_term);
         if(tree->children[1]->term.is_term==1 && tree->children[1]->term.type.tok.token==OP_SLASH)
@@ -553,12 +559,12 @@ link get_data_type_right(parseTree * tree, typeExpressionTable * table, ErrInfo*
     }
     
     tree->type_info = d_left;
-    return tree->type_info;
+    return (ei->depth-=1, tree->type_info);
 }
 
-void traverseAssigns(parseTree * tree, typeExpressionTable * table) {
+void traverseAssigns(parseTree * tree, typeExpressionTable * table,int depth) {
     if(!(tree->term.is_term == 0 && tree->term.type.nt == ASSGN_STMT)) {
-        for(int i = 0; i < tree->num_children; i++) traverseAssigns(tree->children[i], table);
+        for(int i = 0; i < tree->num_children; i++) traverseAssigns(tree->children[i], table,depth+1);
         return;
     }
 
@@ -570,7 +576,7 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table) {
     strcpy(ei->type1,"na");
     strcpy(ei->lex2,"na");
     strcpy(ei->type2,"na");
-    ei->depth=-1;
+    ei->depth=depth;
 
     link type_left = get_data_type_var(tree->children[0], table, ei);
 
@@ -591,7 +597,7 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table) {
     }
 
     ei->success = is_op_compatible(type_left,type_right,ASSGN,ei);
-
+    strcpy(ei->operator,"ASSGN");
     if(!ei->success)
     {
         printf("\nline : %d | stmt : %s | operator : %s | lexeme1 : %s | type1 : %s | lexeme2 : %s | type2 : %s | depth : %d | message : %s\n", 
@@ -603,8 +609,5 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table) {
 
 void traverseParseTree(parseTree *t, typeExpressionTable *Table) {
     traverseDeclares(t, Table);
-    traverseAssigns(t, Table);
-
-    // link* l1 = get_link(Table, "xyz");
-    // printf("type is %d \n", l1->arr_info);
+    traverseAssigns(t, Table,0);
 }
