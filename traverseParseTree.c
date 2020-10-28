@@ -10,17 +10,18 @@ link * copy_link(link * source) {
 
 void add_info(parseTree * node, link * info, typeExpressionTable * table) {
     strcpy(info->id, node->children[0]->term.type.tok.lexeme);
-    printf("single %d prj %d%d%d sdn %d%d%d id %s ", 0, info->arr_info==PRIMITIVE, info->arr_info==RECT_ARR, info->arr_info==JAG_ARR, info->arr_storage==STATIC, info->arr_storage==DYNAMIC, info->arr_storage==NONE, info->id);
-    if(info->arr_info==PRIMITIVE) printf("irb %d%d%d\n", info->type.prim_info == INTEGER, info->type.prim_info == REAL, info->type.prim_info == BOOLEAN);
-    if(info->arr_info==RECT_ARR) printf("irb %d%d%d\n", info->type.rect_arr_info.betype == INTEGER, info->type.rect_arr_info.betype == REAL, info->type.rect_arr_info.betype == BOOLEAN);
-    if(info->arr_info==JAG_ARR) printf("irb %d%d%d\n", info->type.jagged_arr_info.betype == INTEGER, info->type.jagged_arr_info.betype == REAL, info->type.jagged_arr_info.betype == BOOLEAN);
     put_link(table, info);
     if(node->num_children > 1) add_info(node->children[1], copy_link(info), table);
 }
 
 int get_length_idx(parseTree * idx) {
-    if(idx->num_children == 1 && idx->children[0]->term.type.nt == EPSILON) return 0;
+    if(idx->num_children == 1) return 0;
     return 1 + get_length_idx(idx->children[1]);
+}
+
+int get_length_idx_2(parseTree * idx) {
+    if(idx->num_children == 1) return 0;
+    return 1 + get_length_idx_2(idx->children[2]);
 }
 
 link * run_primitive(parseTree * node) {
@@ -62,12 +63,27 @@ link * run_jagged(parseTree * dec, parseTree * init) {
     info->type.jagged_arr_info.range_R2 = (rng_R2 *) malloc(range_1 * sizeof(rng_R2));
     
     if(dim2) {
-        int line_num;
+        // int line_num;
         for(int i = 0; i < range_1; i++) {
             info->type.jagged_arr_info.range_R2[i].num_dim = 1;
             info->type.jagged_arr_info.range_R2[i].dims = (int *) malloc(sizeof(int));
         }
         int count = 0;
+        for(int i = 0; i < range_1; i++) {
+            if((i < range_1 - 1) && init->num_children == 1 || (i == range_1 - 1) && init->num_children > 1) {
+                printf("Error - Line %d - R1 Size mismatch\n", init->children[0]->children[0]->term.type.tok.line_num);
+                return NULL;
+            }
+            parseTree * single_init = init->children[0];
+            info->type.jagged_arr_info.range_R2[i].dims[0] = atoi(single_init->children[6]->term.type.tok.lexeme);
+            int act_length = 1 + get_length_idx_2(single_init->children[10]->children[1]);
+            if(act_length != info->type.jagged_arr_info.range_R2[i].dims[0]) {
+                printf("Error - Line %d - R2 Size mismatch\n", init->children[0]->children[0]->term.type.tok.line_num);
+                return NULL;
+            }
+            if(i < range_1 - 1) init = init->children[1];
+        }
+        /*
         while(count < range_1) {
             line_num = init->children[0]->children[0]->term.type.tok.line_num;
             info->type.jagged_arr_info.range_R2[count++].dims[0] = atoi(init->children[0]->children[6]->term.type.tok.lexeme);
@@ -83,11 +99,8 @@ link * run_jagged(parseTree * dec, parseTree * init) {
             }
             init = init->children[1];
         }
-        printf("%d %d\n", count, init->num_children);
-        if(count < range_1 || init->num_children > 1) {
-            printf("Error - Line %d - Size mismatch\n", init->children[0]->children[6]->term.type.tok.line_num);
-            return NULL;
-        }
+        */
+        printf("Jag2 %d %d\n", count, init->num_children);
         return info;
     }
     
@@ -126,7 +139,7 @@ int get_depth(parseTree * node) {
     else return 1 + get_depth(node->children[3]);
 }
 
-int fill_ranges(parseTree * node, Var_Pair * pairs, typeExpressionTable * table) {
+int fill_ranges(parseTree * node, Var_Pair * pairs, typeExpressionTable * table, enum arr_storage * store_type) {
     parseTree * lower = node->children[1]->children[0]->children[0];
     parseTree * higher = node->children[1]->children[2]->children[0];
     if(lower->term.type.tok.token == ID) {
@@ -139,6 +152,7 @@ int fill_ranges(parseTree * node, Var_Pair * pairs, typeExpressionTable * table)
             printf("Error - Line %d - Non integer bounds not allowed\n", lower->term.type.tok.line_num);
             return -1;
         }
+        *store_type = DYNAMIC;
         pairs[0].is_r1_static = 0;
         strcpy(pairs[0].r1.r_d, lower->term.type.tok.lexeme);
     }
@@ -156,6 +170,7 @@ int fill_ranges(parseTree * node, Var_Pair * pairs, typeExpressionTable * table)
             printf("Error - Line %d - Non integer bounds not allowed\n", higher->term.type.tok.line_num);
             return -1;
         }
+        *store_type = DYNAMIC;
         pairs[0].is_r2_static = 0;
         strcpy(pairs[0].r2.r_d, higher->term.type.tok.lexeme);
     }
@@ -168,7 +183,7 @@ int fill_ranges(parseTree * node, Var_Pair * pairs, typeExpressionTable * table)
         return -1;
     }
     if(node->num_children == 3) return 0;
-    return fill_ranges(node->children[3], pairs+1, table);
+    return fill_ranges(node->children[3], pairs+1, table, store_type);
 }
 
 link * run_rect(parseTree * node, typeExpressionTable * table) {
@@ -178,10 +193,8 @@ link * run_rect(parseTree * node, typeExpressionTable * table) {
     int depth = get_depth(node->children[1]);
     info->type.rect_arr_info.num_dim = depth;
     info->type.rect_arr_info.dim_range = (Var_Pair *) malloc(depth * sizeof(Var_Pair));
-    int success = fill_ranges(node->children[1], info->type.rect_arr_info.dim_range, table);
-    printf("Dims %d\n", depth);
-    for(int i = 0; i < depth; i++) printf("Range %d to %d\n", info->type.rect_arr_info.dim_range[i].r1.r_s, info->type.rect_arr_info.dim_range[i].r2.r_s);
-    for(int i = 0; i < depth; i++) printf("Range %s to %s\n", info->type.rect_arr_info.dim_range[i].r1.r_d, info->type.rect_arr_info.dim_range[i].r2.r_d);
+    info->arr_storage = STATIC;
+    int success = fill_ranges(node->children[1], info->type.rect_arr_info.dim_range, table, &(info->arr_storage));
     if(success == -1) return NULL;
     return info;
 }
@@ -205,10 +218,6 @@ void traverseDeclares(parseTree * tree, typeExpressionTable * table) {
     link * info = get_type(tree, single, table);
     if(info == NULL) return;
     if(single) {
-        printf("single %d prj %d%d%d sdn %d%d%d id %s ", 1, info->arr_info==PRIMITIVE, info->arr_info==RECT_ARR, info->arr_info==JAG_ARR, info->arr_storage==STATIC, info->arr_storage==DYNAMIC, info->arr_storage==NONE, tree->children[1]->term.type.tok.lexeme);
-        if(info->arr_info==PRIMITIVE) printf("irb %d%d%d\n", info->type.prim_info == INTEGER, info->type.prim_info == REAL, info->type.prim_info == BOOLEAN);
-        if(info->arr_info==RECT_ARR) printf("irb %d%d%d\n", info->type.rect_arr_info.betype == INTEGER, info->type.rect_arr_info.betype == REAL, info->type.rect_arr_info.betype == BOOLEAN);
-        if(info->arr_info==JAG_ARR) printf("irb %d%d%d\n", info->type.jagged_arr_info.betype == INTEGER, info->type.jagged_arr_info.betype == REAL, info->type.jagged_arr_info.betype == BOOLEAN);
         strcpy(info->id, tree->children[1]->term.type.tok.lexeme);
         put_link(table, info);
     }
