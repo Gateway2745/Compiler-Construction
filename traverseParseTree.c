@@ -219,7 +219,7 @@ void traverseDeclares(parseTree * tree, typeExpressionTable * table) {
 
 /****      ASSIGNMENT TRAVERSAL   ********/
 
-int is_op_comaptible(link l1,link l2,char* err)
+int is_op_compatible(link l1,link l2,char* err)
 {
     if(l1.arr_info==l2.arr_info)
     {
@@ -308,33 +308,40 @@ int is_op_comaptible(link l1,link l2,char* err)
             return 1;
         }
     }
-    snprintf(err, 200, "TYPES DO NO MATCH!!\n");
+    snprintf(err, 200, "TYPES DO NO MATCH!!");
     return 0;
 }
 
-link get_data_type_of_id(parseTree * tree, typeExpressionTable * table) // tree points to parse tree node with token '<ID>'
+link get_data_type_of_id(parseTree * tree, typeExpressionTable * table, int* line_number, int* success, char* err_msg) // tree points to parse tree node with token '<ID>'
 {
     char* lexeme = tree->term.type.tok.lexeme;
-    int line_number = tree->term.type.tok.line_num;
+    *line_number = tree->term.type.tok.line_num;
+    //printf("actual LN - %d\n", *line_number);
     link* l = get_link(table,lexeme);
     if(!l)
     {
-        printf("Variable %s Not Declared \n Line Number - %d \n Exiting!!", lexeme, line_number);
-        exit(0);      // exiting program
+        snprintf(err_msg, 200, "Variable %s Not Declared", lexeme);
+        *success=0;
+        return (link){};     
     }
     tree->type_info = *l;
     return *l;
 }
 
-link get_data_type_var(parseTree * tree, typeExpressionTable * table)
+link get_data_type_var(parseTree * tree, typeExpressionTable * table, int* line_number, int* success, char* err_msg)
 {
-    link l1 = get_data_type_of_id(tree->children[0],table);
+    //if(!*success) return (link){};
+
+    link l1 = get_data_type_of_id(tree->children[0],table, line_number,success,err_msg);
+    if(!*success) return (link){};
+    //printf("actual double LN - %d\n", *line_number);
 
     if(tree->num_children==2 && l1.arr_info==PRIMITIVE)
     {
-        printf("var is %s \n", tree->children[0]->term.type.tok.lexeme);
-        printf("CANNOT INDEX A PRIMITIVE TYPE!!\n");
-        exit(0);
+        //printf("var is %s \n", tree->children[0]->term.type.tok.lexeme);
+        snprintf(err_msg, 200, "CANNOT INDEX A PRIMITIVE TYPE!!");
+        *success=0;
+        return (link){};
     }
 
     if(tree->num_children==2)
@@ -348,8 +355,9 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table)
             parseTree* tmp = r->children[i]->children[0]->children[0];   // in our grammar '<array_sel>' has only one child '<index>' which can either be '<var>' or '<int'>
             if(tmp->term.type.tok.token==ID)
             {
-                printf("ARRAY DIMENSIONS MUST BE FULLY SPECIFIED FOR ARITHMETIC\n");
-                exit(0);
+                snprintf(err_msg, 200, "ARRAY DIMENSIONS MUST BE FULLY SPECIFIED FOR ARITHMETIC");
+                *success=0;
+                return (link){};
             }
 
             assert(tmp->term.type.tok.token == INT);
@@ -368,22 +376,25 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table)
 
             if(curr_idx != found_num_dims)
             {
-                printf("NUMBER OF ARRAY DIMENSIONS DO NOT MATCH !!\n");
-                exit(0);
+                snprintf(err_msg, 200, "NUMBER OF ARRAY DIMENSIONS DO NOT MATCH !!\n Line-Number - %d \n", *line_number);
+                *success=0;
+                return (link){};
             }
 
             for(int i=0;i<curr_idx;i++)
             {
                 if(found_dims[i].is_r1_static==0 || found_dims[i].is_r2_static==0) 
                 {
-                    printf("ARRAY VARIABLE DIMENSION DECLARED DYNAMIC SO UNABLE TO CHECK!!");
-                    exit(0);
+                    snprintf(err_msg, 200, "ARRAY VARIABLE DIMENSION DECLARED DYNAMIC SO UNABLE TO CHECK!!");
+                    *success=0;
+                    return (link){};
                 }
 
                 if(!(dims[i]>=found_dims[i].r1.r_s && dims[i] <= found_dims[i].r2.r_s))
                 {
-                    printf("ARRAY BOUNDS OUT OF RANGE!!");
-                    exit(0);
+                    snprintf(err_msg, 200, "ARRAY BOUNDS OUT OF RANGE!!");
+                    *success=0;
+                    return (link){};
                 }
             }
 
@@ -400,14 +411,16 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table)
 
             if(curr_idx != found_num_dims)
             {
-                printf("NUMBER OF ARRAY DIMENSIONS DO NOT MATCH !!\n");
-                exit(0);
+                snprintf(err_msg, 200, "NUMBER OF ARRAY DIMENSIONS DO NOT MATCH !!");
+                *success=0;
+                return (link){};
             }
 
             if(!(dims[0]>=found_dims_R1.r1 || dims[0] <= found_dims_R1.r2)) 
             {
-                printf("ARRAY R1 DIMENSIONS OUT OF BOUND!!");
-                exit(0);
+                snprintf(err_msg, 200, "ARRAY R1 DIMENSIONS OUT OF BOUND!!");
+                *success=0;
+                return (link){};
             }
 
             if(curr_idx==2)  // if jagged array has dimension 2
@@ -415,8 +428,9 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table)
                     int a = dims[1]>=found_dims_R2[0].dims[0] && dims[1] <= found_dims_R2[1].dims[0];
                     if (!a)
                     {
-                        printf("ARRAY R2 DIMENSIONS OUT OF BOUND!!");
-                        exit(0);
+                        snprintf(err_msg,200, "ARRAY R2 DIMENSIONS OUT OF BOUND!!");
+                        *success=0;
+                        return (link){};
                     }
             }
             
@@ -427,13 +441,15 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table)
                 rng_R2 req = found_dims_R2[id1];
                 if(dims[1]>=req.num_dim || dims[1]<0)
                 {
-                    printf("ARRAY 2ND DIMENSION OUT OF BOUNDS!!\n");
-                    exit(0);
+                    snprintf(err_msg,200, "ARRAY 2ND DIMENSION OUT OF BOUNDS!!");
+                    *success=0;
+                    return (link){};
                 }
                 if(dims[2]>=req.dims[dims[1]] || dims[2]<0)
                 {
-                    printf("ARRAY 3RD DIMENSION OUT OF BOUNDS!!\n");
-                    exit(0);
+                    snprintf(err_msg,200, "ARRAY 3RD DIMENSION OUT OF BOUNDS!!");
+                    *success=0;
+                    return (link){};
                 }
             }
 
@@ -445,11 +461,13 @@ link get_data_type_var(parseTree * tree, typeExpressionTable * table)
 }
 
 
-link get_data_type_right(parseTree * tree, typeExpressionTable * table) // gets data type to right of assignment statement
+link get_data_type_right(parseTree * tree, typeExpressionTable * table, int* success, char* err_msg) // gets data type to right of assignment statement
 {
-    int line_number;
+    if(!*success) return (link){}; 
 
-    if(tree->term.type.nt==VAR) return get_data_type_var(tree, table);
+    int tmp_line_no;
+
+    if(tree->term.type.nt==VAR) return get_data_type_var(tree, table, &tmp_line_no, success, err_msg);
 
     if(tree->num_children==0) // needed for <INT> tokens
     {
@@ -465,14 +483,13 @@ link get_data_type_right(parseTree * tree, typeExpressionTable * table) // gets 
             tree->type_info = l;
             return l;
         }
-        
-        line_number = tree->term.type.tok.line_num;
 
         link* l = get_link(table,lexeme);
         if(!l)
         {
-            printf("Variable %s Not Declared \n Line Number - %d \n Exiting!!", lexeme, line_number);
-            exit(0);      
+            snprintf(err_msg, 200, "Variable %s Not Declared \n Exiting!!", lexeme);
+            *success=0;
+            return (link){};    
         }
         tree->type_info = *l;
         return *l;
@@ -481,20 +498,17 @@ link get_data_type_right(parseTree * tree, typeExpressionTable * table) // gets 
     link d_left;
     link d_right;
 
-    d_left = get_data_type_right(tree->children[0],table);
+    d_left = get_data_type_right(tree->children[0],table,success,err_msg);
+    if(!*success) return (link){}; 
 
     if(tree->num_children==3)
     {
-        char err_msg[200];
-        int success;
-        d_right = get_data_type_right(tree->children[2],table);
-        success = is_op_comaptible(d_left,d_right,err_msg);
+        d_right = get_data_type_right(tree->children[2],table,success,err_msg);
+        if(!*success) return (link){}; 
 
-        if(!success)
-        {
-            printf("%s\n LINE-NUMBER %d\n", err_msg,tree->children[0]->term.type.tok.line_num);
-            exit(0);
-        }
+
+        *success = is_op_compatible(d_left,d_right,err_msg);
+        if(!*success) return (link){}; 
         
         if(tree->children[1]->term.is_term==1 && tree->children[1]->term.type.tok.token==OP_SLASH)
         {
@@ -502,7 +516,7 @@ link get_data_type_right(parseTree * tree, typeExpressionTable * table) // gets 
         }
     }
     
-    tree->type_info = d_left; // check this...assigns internal node of parse tree the same link as its left child( only same type expression is important here)
+    tree->type_info = d_left;
     return tree->type_info;
 }
 
@@ -511,15 +525,34 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table) {
         for(int i = 0; i < tree->num_children; i++) traverseAssigns(tree->children[i], table);
         return;
     }
-    
-    link type_left = get_data_type_var(tree->children[0], table);
-    link type_right = get_data_type_right(tree->children[2],table); 
 
+    int line_number;
+    int success=1;
     char err_msg[200];
-    if(!is_op_comaptible(type_left,type_right,err_msg))
+
+
+    link type_left = get_data_type_var(tree->children[0], table, &line_number,&success,err_msg);
+
+    if(!success)
     {
-        printf("%s\n LINE-NUMBER %d\n", err_msg,tree->term.type.tok.line_num);
-        exit(0);
+        printf("%s\n Line Number - %d\n", err_msg, line_number);
+        return;
+    }
+
+    link type_right = get_data_type_right(tree->children[2],table,&success,err_msg); 
+
+    if(!success)
+    {
+        printf("%s\n Line Number - %d\n", err_msg, line_number);
+        return;
+    }
+
+    //printf("actual triple LN - %d\n", line_number);
+    
+    if(!is_op_compatible(type_left,type_right,err_msg))
+    {
+        printf("%s\n LINE-NUMBER %d \n", err_msg , line_number);
+        return;
     }
 }
 
