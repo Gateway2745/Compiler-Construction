@@ -44,8 +44,6 @@ link * run_primitive(parseTree * node) {
     return info;
 }
 
-// Start of horrible sphagetti code
-
 link * run_jagged(parseTree * dec, parseTree * init) {
     link * info = (link *) malloc(sizeof(link));
     info->arr_info = JAG_ARR;
@@ -120,8 +118,6 @@ link * run_jagged(parseTree * dec, parseTree * init) {
     }
     return info;
 }
-
-// Horrible sphagetti code <hopefully> ends here
 
 int get_depth(parseTree * node) {
     if(node->num_children < 4) return 1;
