@@ -1,9 +1,9 @@
 /*
 Group Number 64
-Chirag C D - f2018A7PS0277P
-R Rohit - f2018A7PS0224P
-Abhishek Agarwal - f2018A7PS0177P
-Akarsh Gowtham Shroff - f2018A7PS1121P
+Chirag C D - 2018A7PS0277P
+R Rohit - 2018A7PS0224P
+Abhishek Agarwal - 2018A7PS0177P
+Akarsh Gowtham Shroff - 2018A7PS1121P
 */
 
 #include "parser.h"
@@ -651,7 +651,7 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table,int depth) {
 
 
 void traverseParseTree(parseTree *t, typeExpressionTable *Table) {
-    printf("Starting tree traversal\n");
+    printf("Starting tree traversal\n\nErrors:\n");
     traverseDeclares(t, Table);
     traverseAssigns(t, Table,0);
     printf("Finished tree traversal\n");

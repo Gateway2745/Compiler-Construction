@@ -1,10 +1,11 @@
 /*
 Group Number 64
-Chirag C D - f2018A7PS0277P
-R Rohit - f2018A7PS0224P
-Abhishek Agarwal - f2018A7PS0177P
-Akarsh Gowtham Shroff - f2018A7PS1121P
+Chirag C D - 2018A7PS0277P
+R Rohit - 2018A7PS0224P
+Abhishek Agarwal - 2018A7PS0177P
+Akarsh Gowtham Shroff - 2018A7PS1121P
 */
+
 #include "parser.h"
 
 void get_str(TermType t, char * buf, int is_term) {
@@ -122,8 +123,8 @@ void internalPrintParseTree(parseTree * t, int depth, int print_type) {
         printf("Rule-");
         print_rule(t);
     }
+    printf("\n");
     if(print_type) {printf("\tType info- ");    printTypeLine(&(t->type_info));}
-    else printf("\n");
     for(int i = 0; i < t->num_children; i++) internalPrintParseTree(t->children[i], depth+1, print_type);
 }
 

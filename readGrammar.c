@@ -1,9 +1,9 @@
 /*
 Group Number 64
-Chirag C D - f2018A7PS0277P
-R Rohit - f2018A7PS0224P
-Abhishek Agarwal - f2018A7PS0177P
-Akarsh Gowtham Shroff - f2018A7PS1121P
+Chirag C D - 2018A7PS0277P
+R Rohit - 2018A7PS0224P
+Abhishek Agarwal - 2018A7PS0177P
+Akarsh Gowtham Shroff - 2018A7PS1121P
 */
 #include "parser.h"
 
@@ -125,7 +125,7 @@ void readGrammar(char *filename, Grammar* g)
 
     while (fgets(line, 150, text) != NULL)
     {
-        if(line[0]=='\n') continue;
+        if(line[0]=='\n' || line[0]=='#') continue;
         // printf("%s", line);
         if(g->num_rules == size_lim) {
             size_lim *= 2;
