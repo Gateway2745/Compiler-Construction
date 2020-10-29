@@ -125,8 +125,8 @@ void readGrammar(char *filename, Grammar* g)
 
     while (fgets(line, 150, text) != NULL)
     {
-        if(line[0]=='\n' || line[0]=='#') continue;
-        // printf("%s", line);
+        if(line[0]=='\n') continue;
+
         if(g->num_rules == size_lim) {
             size_lim *= 2;
             g->rules = (Term **) realloc(g->rules, size_lim * sizeof(Term *));

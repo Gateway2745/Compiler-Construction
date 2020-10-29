@@ -32,7 +32,7 @@ typedef enum Token {
     KEY_SIZE, KEY_VALS, KEY_JAG, KEY_INT, KEY_REAL, KEY_BOOL,
     OP_PLUS, OP_MINUS, OP_STAR, OP_SLASH, OP_AND, OP_OR,
     ID, INT,
-    END
+    END, ENDL
 } Token;
 
 typedef struct tokenStream {
