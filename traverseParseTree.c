@@ -40,7 +40,7 @@ link * run_primitive(parseTree * node) {
     if(node->children[0]->term.type.tok.token == KEY_INT) info->type.prim_info = INTEGER;
     else if(node->children[0]->term.type.tok.token == KEY_BOOL) info->type.prim_info = BOOLEAN;
     else if(node->children[0]->term.type.tok.token == KEY_REAL) info->type.prim_info = REAL;
-    else printf("line : %2d | stmt : declare | message : Unknown primitive %s\n", node->children[0]->term.type.tok.line_num, node->children[0]->term.type.tok.lexeme);
+    else printf("line : %2d | stmt : declaration | message : Unknown primitive %s\n", node->children[0]->term.type.tok.line_num, node->children[0]->term.type.tok.lexeme);
     return info;
 }
 
@@ -55,13 +55,13 @@ link * run_jagged(parseTree * dec, parseTree * init) {
     parseTree * y_node = dec->children[3]->children[2]->children[0];
 
     if(x_node->term.type.tok.token == ID || y_node->term.type.tok.token == ID) {
-        printf("line : %2d | stmt : declare | message : Jagged arrays cannot have dynamic bounds\n", x_node->term.type.tok.line_num);
+        printf("line : %2d | stmt : declaration | message : Jagged arrays cannot have dynamic bounds\n", x_node->term.type.tok.line_num);
         return NULL;
     }
     info->type.jagged_arr_info.range_R1.r1 = atoi(x_node->term.type.tok.lexeme);
     info->type.jagged_arr_info.range_R1.r2 = atoi(y_node->term.type.tok.lexeme);
     if(info->type.jagged_arr_info.range_R1.r1 > info->type.jagged_arr_info.range_R1.r2) {
-        printf("line : %2d | stmt : declare | message : Lower bound cannot exceed upper bound\n", x_node->term.type.tok.line_num);
+        printf("line : %2d | stmt : declaration | message : Lower bound cannot exceed upper bound\n", x_node->term.type.tok.line_num);
         return NULL;
     }
 
@@ -76,14 +76,14 @@ link * run_jagged(parseTree * dec, parseTree * init) {
         int count = 0;
         for(int i = 0; i < range_1; i++) {
             if((i < range_1 - 1) && init->num_children == 1 || (i == range_1 - 1) && init->num_children > 1) {
-                printf("line : %2d | stmt : declare | message : R1 Size mismatch\n", init->children[0]->children[0]->term.type.tok.line_num);
+                printf("line : %2d | stmt : declaration | message : R1 Size mismatch\n", init->children[0]->children[0]->term.type.tok.line_num);
                 return NULL;
             }
             parseTree * single_init = init->children[0];
             info->type.jagged_arr_info.range_R2[i].dims[0] = atoi(single_init->children[6]->term.type.tok.lexeme);
             int act_length = 1 + get_length_idx_2(single_init->children[10]->children[1]);
             if(act_length != info->type.jagged_arr_info.range_R2[i].dims[0]) {
-                printf("line : %2d | stmt : declare | message : R2 Size mismatch\n", init->children[0]->children[0]->term.type.tok.line_num);
+                printf("line : %2d | stmt : declaration | message : R2 Size mismatch\n", init->children[0]->children[0]->term.type.tok.line_num);
                 return NULL;
             }
             if(i < range_1 - 1) init = init->children[1];
@@ -100,18 +100,18 @@ link * run_jagged(parseTree * dec, parseTree * init) {
         for(int j = 0; j < num_dim; j++) {
             int length = get_length_idx(range->children[0]);
             if(length == 0) {
-                printf("line : %2d | stmt : declare | message : Detected 0 length subrange\n", init->children[0]->children[6]->term.type.tok.line_num);
+                printf("line : %2d | stmt : declaration | message : Detected 0 length subrange\n", init->children[0]->children[6]->term.type.tok.line_num);
                 return NULL;
             }
             info->type.jagged_arr_info.range_R2[i].dims[j] = length;
             if(range->num_children < 3 && (j < num_dim - 1) || range->num_children == 3 && (j == num_dim - 1)) {
-                printf("line : %2d | stmt : declare | message : R2 Size mismatch\n", range->children[0]->children[0]->term.type.tok.line_num);
+                printf("line : %2d | stmt : declaration | message : R2 Size mismatch\n", range->children[0]->children[0]->term.type.tok.line_num);
                 return NULL;
             }
             else if(j < num_dim-1) range = range->children[2];
         }
         if(init->num_children < 2 && (i < range_1 - 1) || init->num_children == 2 && (i == range_1 - 1)) {
-            printf("line : %2d | stmt : declare | message : R1 Size mismatch\n", init->children[0]->children[6]->term.type.tok.line_num);
+            printf("line : %2d | stmt : declaration | message : R1 Size mismatch\n", init->children[0]->children[6]->term.type.tok.line_num);
             return NULL;
         }
         if(i < range_1 - 1) init = init->children[1];
@@ -130,11 +130,11 @@ int fill_ranges(parseTree * node, Var_Pair * pairs, typeExpressionTable * table,
     if(lower->term.type.tok.token == ID) {
         link * bound = get_link(table, lower->term.type.tok.lexeme);
         if(!bound) {
-            printf("line : %2d | stmt : declare | message : Identifier not declared\n", lower->term.type.tok.line_num);
+            printf("line : %2d | stmt : declaration | message : Identifier not declared\n", lower->term.type.tok.line_num);
             return -1;
         }
         if(!(bound->arr_info == PRIMITIVE && bound->type.prim_info == INTEGER)) {
-            printf("line : %2d | stmt : declare | message : Non integer bounds not allowed\n", lower->term.type.tok.line_num);
+            printf("line : %2d | stmt : declaration | message : Non integer bounds not allowed\n", lower->term.type.tok.line_num);
             return -1;
         }
         *store_type = DYNAMIC;
@@ -148,11 +148,11 @@ int fill_ranges(parseTree * node, Var_Pair * pairs, typeExpressionTable * table,
     if(higher->term.type.tok.token == ID) {
         link * bound = get_link(table, higher->term.type.tok.lexeme);
         if(!bound) {
-            printf("line : %2d | stmt : declare | message : Identifier not declared\n", higher->term.type.tok.line_num);
+            printf("line : %2d | stmt : declaration | message : Identifier not declared\n", higher->term.type.tok.line_num);
             return -1;
         }
         if(!(bound->arr_info == PRIMITIVE && bound->type.prim_info == INTEGER)) {
-            printf("line : %2d | stmt : declare | message : Non integer bounds not allowed\n", higher->term.type.tok.line_num);
+            printf("line : %2d | stmt : declaration | message : Non integer bounds not allowed\n", higher->term.type.tok.line_num);
             return -1;
         }
         *store_type = DYNAMIC;
@@ -164,7 +164,7 @@ int fill_ranges(parseTree * node, Var_Pair * pairs, typeExpressionTable * table,
         pairs[0].r2.r_s = atoi(higher->term.type.tok.lexeme);
     }
     if(pairs[0].is_r1_static && pairs[0].is_r2_static && (pairs[0].r1.r_s > pairs[0].r2.r_s)) {
-        printf("line : %2d | stmt : declare | message : Lower bound cannot exceed upper bound\n", higher->term.type.tok.line_num);
+        printf("line : %2d | stmt : declaration | message : Lower bound cannot exceed upper bound\n", higher->term.type.tok.line_num);
         return -1;
     }
     if(node->num_children == 3) return 0;
@@ -617,7 +617,7 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table,int depth) {
 
     if(!ei->success)
     {
-        printf("line : %d | stmt : %s | operator : %8s | lexeme1 : %s | type1 : %s | lexeme2 : %s | type2 : %s | depth : %d | message : %s\n", 
+        printf("line : %d | stmt : %-11s | operator : %8s | lexeme1 : %s | type1 : %s | lexeme2 : %s | type2 : %s | depth : %d | message : %s\n", 
                 ei->line_number,ei->stmt_type,ei->operator,ei->lex1,ei->type1,ei->lex2,ei->type2,ei->depth,ei->msg);
         return;
     }
@@ -626,7 +626,7 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table,int depth) {
 
     if(!ei->success)
     {
-        printf("line : %d | stmt : %s | operator : %8s | lexeme1 : %s | type1 : %s | lexeme2 : %s | type2 : %s | depth : %d | message : %s\n", 
+        printf("line : %d | stmt : %-11s | operator : %8s | lexeme1 : %s | type1 : %s | lexeme2 : %s | type2 : %s | depth : %d | message : %s\n", 
                 ei->line_number,ei->stmt_type,ei->operator,ei->lex1,ei->type1,ei->lex2,ei->type2,ei->depth,ei->msg);
         return;
     }
@@ -643,7 +643,7 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table,int depth) {
 
     if(!ei->success)
     {
-        printf("line : %d | stmt : %s | operator : %8s | lexeme1 : %s | type1 : %s | lexeme2 : %s | type2 : %s | depth : %d | message : %s\n", 
+        printf("line : %d | stmt : %-11s | operator : %8s | lexeme1 : %s | type1 : %s | lexeme2 : %s | type2 : %s | depth : %d | message : %s\n", 
                 ei->line_number,ei->stmt_type,ei->operator,ei->lex1,ei->type1,ei->lex2,ei->type2,ei->depth,ei->msg);
         return;
     }
