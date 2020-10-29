@@ -651,7 +651,7 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table,int depth) {
 
 
 void traverseParseTree(parseTree *t, typeExpressionTable *Table) {
-    printf("Starting tree traversal\n");
+    printf("Starting tree traversal\n\nErrors:\n");
     traverseDeclares(t, Table);
     traverseAssigns(t, Table,0);
     printf("Finished tree traversal\n");

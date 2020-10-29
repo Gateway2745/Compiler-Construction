@@ -122,8 +122,8 @@ void internalPrintParseTree(parseTree * t, int depth, int print_type) {
         printf("Rule-");
         print_rule(t);
     }
+    printf("\n");
     if(print_type) {printf("\tType info- ");    printTypeLine(&(t->type_info));}
-    else printf("\n");
     for(int i = 0; i < t->num_children; i++) internalPrintParseTree(t->children[i], depth+1, print_type);
 }
 

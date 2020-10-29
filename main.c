@@ -11,12 +11,15 @@ void driver(char * filename) {
     while (1)
     {
         int option;
-        printf("\nEnter option:\n0-exit\n1-create_tree\n2-traverse_tree\n3-print_tree (with type info) (WARNING - will not fit in a line)\n4-print_table\n5-print_tree (without type info) (pretty)\n");
-        scanf("%d", &option);
-        if(!(option >= 0 && option <= 5)) {
+        char buf[2];
+        printf("\nEnter option:\n0-exit\n1-create_tree\n2-traverse_tree\n3-print_tree (with type info) (WARNING - 2 lines per node)\n4-print_table\n5-print_tree (without type info) (pretty)\n");
+        scanf("%s", buf);
+        buf[1] = '\0';
+        if(!(buf[0] >= '0' && buf[0] <= '5')) {
             printf("Invalid option\n");
             continue;
         }
+        option = atoi(buf);
 
         if(option == 0) {
             printf("Exiting\n");
