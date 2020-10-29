@@ -592,7 +592,6 @@ link get_data_type_right(parseTree * tree, typeExpressionTable * table, ErrInfo*
         }
 
     }
-    
 
     tree->type_info = d_left;
     return (ei->depth-=1, tree->type_info);
@@ -618,7 +617,7 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table,int depth) {
 
     if(!ei->success)
     {
-        printf("\nline : %d | stmt : %s | operator : %s | lexeme1 : %s | type1 : %s | lexeme2 : %s | type2 : %s | depth : %d | message : %s\n", 
+        printf("line : %d | stmt : %s | operator : %8s | lexeme1 : %s | type1 : %s | lexeme2 : %s | type2 : %s | depth : %d | message : %s\n", 
                 ei->line_number,ei->stmt_type,ei->operator,ei->lex1,ei->type1,ei->lex2,ei->type2,ei->depth,ei->msg);
         return;
     }
@@ -627,7 +626,7 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table,int depth) {
 
     if(!ei->success)
     {
-        printf("\nline : %d | stmt : %s | operator : %s | lexeme1 : %s | type1 : %s | lexeme2 : %s | type2 : %s | depth : %d | message : %s\n", 
+        printf("line : %d | stmt : %s | operator : %8s | lexeme1 : %s | type1 : %s | lexeme2 : %s | type2 : %s | depth : %d | message : %s\n", 
                 ei->line_number,ei->stmt_type,ei->operator,ei->lex1,ei->type1,ei->lex2,ei->type2,ei->depth,ei->msg);
         return;
     }
@@ -644,7 +643,7 @@ void traverseAssigns(parseTree * tree, typeExpressionTable * table,int depth) {
 
     if(!ei->success)
     {
-        printf("\nline : %d | stmt : %s | operator : %s | lexeme1 : %s | type1 : %s | lexeme2 : %s | type2 : %s | depth : %d | message : %s\n", 
+        printf("line : %d | stmt : %s | operator : %8s | lexeme1 : %s | type1 : %s | lexeme2 : %s | type2 : %s | depth : %d | message : %s\n", 
                 ei->line_number,ei->stmt_type,ei->operator,ei->lex1,ei->type1,ei->lex2,ei->type2,ei->depth,ei->msg);
         return;
     }
