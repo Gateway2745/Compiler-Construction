@@ -128,5 +128,6 @@ void createParseTree(parseTree *t, tokenStream *s, Grammar g) {
 		printf("Failed to build parse tree\n");
 		exit(1);
 	}
+	if(s->token != END) printf("Ignoring extra characters after end\n");
 	printf("Successfully built parse tree\n");
 }
